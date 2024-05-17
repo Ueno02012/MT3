@@ -199,4 +199,40 @@ static Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
 	result.z /= w;
 	return result;
 }
+// X軸の回転行列
+static Matrix4x4 MakeRotateXMatrix(float radian) {
+	Matrix4x4 result{};
+	result.m[0][0] = 1.0f;
+	result.m[1][1] = std::cos(radian);
+	result.m[1][2] = std::sin(radian);
+	result.m[2][1] = -std::sin(radian);
+	result.m[2][2] = std::cos(radian);
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
+// Y軸の回転行列
+static Matrix4x4 MakeRotateYMatrix(float radian) {
+	Matrix4x4 result{};
+	result.m[0][0] = std::cos(radian);
+	result.m[0][2] = -std::sin(radian);
+	result.m[1][1] = 1.0f;
+	result.m[2][0] = std::sin(radian);
+	result.m[2][2] = std::cos(radian);
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
+// Z軸の回転行列
+static Matrix4x4 MakeRotateZMatrix(float radian) {
+	Matrix4x4 result{};
+	result.m[0][0] = std::cos(radian);
+	result.m[0][1] = std::sin(radian);
+	result.m[1][0] = -std::sin(radian);
+	result.m[1][1] = std::cos(radian);
+	result.m[2][2] = 1.0f;
+	result.m[3][3] = 1.0f;
+	return result;
+}
+
 

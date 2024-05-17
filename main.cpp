@@ -1,7 +1,7 @@
 #include <Novice.h>
 #include "Vector3.h"
 #include <cmath>
-const char kWindowTitle[] = "LC1C_04_ウエノ_ユウキ_タイトル";
+const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
 //加算
 Vector3 Add(const Vector3& v1, const Vector3& v2) {

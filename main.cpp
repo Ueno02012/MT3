@@ -2,7 +2,7 @@
 #include "Vector3.h"
 #include "Matrix.h"
 #include <cmath>
-const char kWindowTitle[] = "LC1C_04_ウエノ_ユウキ_タイトル";
+const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
 static const int kRowHeight = 20;
 static const int kColumnWidth = 60;

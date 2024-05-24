@@ -101,6 +101,24 @@ static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
 	return result;
 
 }
+// 平行移動行列
+static Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
+	Matrix4x4 result{};
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			if (i == j) {
+				result.m[i][j] = 1.0f;
+			}
+			else {
+				result.m[i][j] = 0.0f;
+			}
+		}
+	}
+	result.m[3][0] = translate.x;
+	result.m[3][1] = translate.y;
+	result.m[3][2] = translate.z;
+	return result;
+}
 
 // 三次元アフィン変換行列
 static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& radian, const Vector3& translate) {

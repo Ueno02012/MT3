@@ -42,3 +42,7 @@ static Matrix4x4 MakeViewportMatrix(float left, float top, float width, float he
 	result.m[3][3] = 1.0f;
 	return result;
 }
+// 三次元アフィン変換行列
+static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& radian, const Vector3& translate) {
+	return Multiply(MakeScaleMatrix(scale), Multiply(Multiply(MakeRotateXMatrix(radian.x), Multiply(MakeRotateYMatrix(radian.y), MakeRotateZMatrix(radian.z))), MakeTranslateMatrix(translate)));
+}

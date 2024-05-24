@@ -31,7 +31,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 rotate{ 0.4f,1.43f,-0.8f };
 	Vector3 translate{ 2.7f,-4.15f,1.57f };
 
-	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
+	TransformEx cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
 
 	const int kClientWidth = 1280;
 	const int kClientHeight = 720;
@@ -68,7 +68,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		for (uint32_t i = 0; i < 3; ++i) {
-			Vector3 ndVertex=
+			Vector3 ndVertex = Transform(kLocalVertices[i], worldMatrix);
+		
 		}
 		
 

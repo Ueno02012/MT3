@@ -42,6 +42,20 @@ static Matrix4x4 MakeViewportMatrix(float left, float top, float width, float he
 	result.m[3][3] = 1.0f;
 	return result;
 }
+// 行列の積
+static Matrix4x4 Multiply(const Matrix4x4& m1, const Matrix4x4& m2) {
+	Matrix4x4 result{};
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int k = 0; k < 4; k++) {
+				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
+			}
+		}
+	}
+	return result;
+
+}
+
 // 三次元アフィン変換行列
 static Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& radian, const Vector3& translate) {
 	return Multiply(MakeScaleMatrix(scale), Multiply(Multiply(MakeRotateXMatrix(radian.x), Multiply(MakeRotateYMatrix(radian.y), MakeRotateZMatrix(radian.z))), MakeTranslateMatrix(translate)));

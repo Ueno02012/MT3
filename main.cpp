@@ -1,6 +1,7 @@
 #include <Novice.h>
 #include "Vector3.h"
 #include "Matrix.h"
+#include "Transform.h"
 #include <cmath>
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
@@ -26,8 +27,28 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
+	Vector3 scale{ 1.0f,1.0f,1.0f };
+	Vector3 rotate{ 0.4f,1.43f,-0.8f };
+	Vector3 translate{ 2.7f,-4.15f,1.57f };
 
-	Matrix4x4 worldMatrix=MakeAffineMatrix()
+	Transform cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
+
+	const int kClientWidth = 1280;
+	const int kClientHeight = 720;
+
+	Matrix4x4 worldMatrix = MakeAffineMatrix(scale, rotate, translate);
+
+	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+	
+	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
+
+	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+
+	Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kClientWidth), float(kClientHeight), 0.0f, 1.0f);
+
+	Vector3 screenVertices[3];
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
@@ -46,6 +67,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		for (uint32_t i = 0; i < 3; ++i) {
+			Vector3 ndVertex=
+		}
 		
 
 		///

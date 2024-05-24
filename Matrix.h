@@ -97,18 +97,18 @@ static Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float n
 	return result;
 }
 
-// 正射影行列
-static Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
-	Matrix4x4 result{};
-	result.m[0][0] = 2 / (right - left);
-	result.m[1][1] = 2 / (top - bottom);
-	result.m[2][2] = 1.0f / (farClip - nearClip);
-	result.m[3][0] = (left + right) / (left - right);
-	result.m[3][1] = (top + bottom) / (bottom - top);
-	result.m[3][2] = nearClip / (nearClip - farClip);
-	result.m[3][3] = 1.0f;
-	return result;
-}
+//// 正射影行列
+//static Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float bottom, float nearClip, float farClip) {
+//	Matrix4x4 result{};
+//	result.m[0][0] = 2 / (right - left);
+//	result.m[1][1] = 2 / (top - bottom);
+//	result.m[2][2] = 1.0f / (farClip - nearClip);
+//	result.m[3][0] = (left + right) / (left - right);
+//	result.m[3][1] = (top + bottom) / (bottom - top);
+//	result.m[3][2] = nearClip / (nearClip - farClip);
+//	result.m[3][3] = 1.0f;
+//	return result;
+//}
 
 // ビューポート変換行列
 static Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth, float maxDepth) {

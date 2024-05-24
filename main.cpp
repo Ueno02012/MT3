@@ -36,19 +36,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	const int kClientWidth = 1280;
 	const int kClientHeight = 720;
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix(scale, rotate, translate);
-
-	Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
-	
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
-
-	Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
-
-	Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kClientWidth), float(kClientHeight), 0.0f, 1.0f);
-
-	Vector3 screenVertices[3];
 
 	// キー入力結果を受け取る箱
 	char keys[256] = {0};
@@ -67,9 +54,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
+		if (keys[DIK_W]) {
+			translate.z++;
+		}
+		Matrix4x4 worldMatrix = MakeAffineMatrix(scale, rotate, translate);
+
+		Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+
+		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
+
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kClientWidth) / float(kClientHeight), 0.1f, 100.0f);
+
+		Matrix4x4 worldViewProjectionMatrix = Multiply(worldMatrix, Multiply(viewMatrix, projectionMatrix));
+
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kClientWidth), float(kClientHeight), 0.0f, 1.0f);
+
+		Vector3 kLocalVertices[3] = { {0.0f,0.0f,0.0f},{-30.0f,100.0f,0.0f},{30.0f,100.0f,0.0f } };
+
+		Vector3 screenVertices[3];
+
 		for (uint32_t i = 0; i < 3; ++i) {
-			Vector3 ndVertex = Transform(kLocalVertices[i], worldMatrix);
-		
+			Vector3 ndVertex = Transform(kLocalVertices[i], worldViewProjectionMatrix);
+			screenVertices[i] = Transform(ndVertex, viewportMatrix);
 		}
 		
 
@@ -80,7 +86,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		
+		Novice::DrawTriangle(int(screenVertices[0].x), int(screenVertices[0].y), int(screenVertices[1].x), int(screenVertices[1].y),
+			int(screenVertices[2].x), int(screenVertices[2].y), RED, kFillModeSolid);
 
 		///
 		/// ↑描画処理ここまで

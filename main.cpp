@@ -27,12 +27,15 @@ void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label) 
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
+	Novice::Initialize(kWindowTitle, 1280, 720);
+
+
 	Vector3 scale{ 1.0f,1.0f,1.0f };
-	Vector3 rotate{ 0.4f,1.43f,-0.8f };
-	Vector3 translate{ 2.7f,-4.15f,1.57f };
+	Vector3 rotate{ 0.0f,0.0f,0.0f };
+	Vector3 translate{ 0.0f,0.0f,0.0f };
 
-	TransformEx cameraTransform{ {1.0f,1.0f,1.0f},{0.0f,0.0f,0.0f},{0.0f,0.0f,-5.0f} };
-
+	Vector3 cameraPosition{0.0f,0.0f,-300.0f};
+	
 	const int kClientWidth = 1280;
 	const int kClientHeight = 720;
 
@@ -55,11 +58,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 		if (keys[DIK_W]) {
-			translate.z++;
+			translate.y+=0.5f;
 		}
+		if (keys[DIK_S]) {
+			translate.y-=0.5f;
+		}
+		if (keys[DIK_A]) {
+			translate.x -= 0.5f;
+		}
+		if (keys[DIK_D]) {
+			translate.x += 0.5f;
+		}
+		rotate.y += 0.1f;
+
 		Matrix4x4 worldMatrix = MakeAffineMatrix(scale, rotate, translate);
 
-		Matrix4x4 cameraMatrix = MakeAffineMatrix(cameraTransform.scale, cameraTransform.rotate, cameraTransform.translate);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, {0.0f,0.0f,0.0f},cameraPosition);
 
 		Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 
@@ -69,7 +83,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0, 0, float(kClientWidth), float(kClientHeight), 0.0f, 1.0f);
 
-		Vector3 kLocalVertices[3] = { {0.0f,0.0f,0.0f},{-30.0f,100.0f,0.0f},{30.0f,100.0f,0.0f } };
+		Vector3 kLocalVertices[3] = { {0.0f,5.0f,0.0f},{-5.0f,-5.0f,0.0f},{5.0f,-5.0f,0.0f } };
 
 		Vector3 screenVertices[3];
 

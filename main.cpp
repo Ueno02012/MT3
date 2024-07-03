@@ -179,7 +179,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawSphere(sphere, ViewProjectionMatrix, ViewportMatrix, BLACK);
 
 
-
 		///
 		/// ↑描画処理ここまで
 		///

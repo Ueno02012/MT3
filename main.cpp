@@ -15,6 +15,27 @@ static const int Kcolumnwidth = 60;
 static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
 
+
+struct Line {
+	Vector3 origin;//!< 始点
+	Vector3 diff;//!< 終点への差分ベクトル
+};
+
+struct Ray {
+	Vector3 origin;//!< 始点
+	Vector3 diff;//!< 終点への差分ベクトル
+};
+
+struct Segment {
+	Vector3 origin;//!< 始点
+	Vector3 diff;//!< 終点への差分ベクトル
+};
+
+
+
+
+
+
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
 void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMatrix) {
@@ -54,62 +75,6 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 
 }
 
-static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
-{
-	const uint32_t kSubdivision = 12;							//分割数
-	const float kLatStep = (float)M_PI / kSubdivision;			//緯度のステップ
-	const float kLonStep = 2.0f * (float)M_PI / kSubdivision;	//経度のステップ
-
-	// 緯度のループ
-	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	{
-		float lat = -0.5f * (float)M_PI + latIndex * kLatStep;	//現在の緯度
-
-		//次の緯度
-		float nextLat = lat + kLatStep;
-
-		//経度のループ
-		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-		{
-			//現在の経度
-			float lon = lonIndex * kLonStep;
-
-			//次の経度
-			float nextLon = lon + kLonStep;
-
-			// 球面座標の計算
-			Vector3 pointA
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(lon)
-			};
-
-			Vector3 pointB
-			{
-				sphere.center.x + sphere.radius * cos(nextLat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(nextLat),
-				sphere.center.z + sphere.radius * cos(nextLat) * sin(lon)
-			};
-
-			Vector3 pointC
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(nextLon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(nextLon)
-			};
-
-			// スクリーン座標に変換
-			pointA = Transform(pointA, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointB = Transform(pointB, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointC = Transform(pointC, Multiply(viewProjectionMatrix, viewportMatrix));
-
-			// 線分の描画
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointB.x, (int)pointB.y, color);
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointC.x, (int)pointC.y, color);
-		}
-	}
-}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -117,16 +82,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
-
-	Vector3 point{ -1.5f,0.6f,0.6f };
-
-	Sphere sphere{};
-	sphere.radius = 0.5f;
-	Vector3 rotate = {};
-	Vector3 translate = {};
-
-	Vector3 camaraTranslate = { 0.0f,1.9f,-6.49f };
-	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -146,22 +101,35 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
-		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
 
-		Matrix4x4 cameraMatrxi = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, camaraTranslate);
-		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrxi);
 
-		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-		Matrix4x4 ViewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
-		Matrix4x4 ViewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		ImGui::Begin("Window");
-		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
-		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
-		ImGui::End();
+
+
+
+
+
+
+
+
+
+
+		//Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
+		//Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
+
+		//Matrix4x4 cameraMatrxi = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, camaraTranslate);
+		//Matrix4x4 viewCameraMatrix = Inverse(cameraMatrxi);
+
+		//Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		//Matrix4x4 ViewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
+		//Matrix4x4 ViewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
+		//ImGui::Begin("Window");
+		//ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
+		//ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
+		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
+		//ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
+		//ImGui::End();
 
 		///
 		/// ↑更新処理ここまで
@@ -171,9 +139,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		DrawGrid(ViewProjectionMatrix, ViewportMatrix);// グリッドの描画
-
-		DrawSphere(sphere, ViewProjectionMatrix, ViewportMatrix, BLACK);// 球体の描画
 
 
 		///

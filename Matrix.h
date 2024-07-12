@@ -214,3 +214,9 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float  width, float height, 
 	result.m[3][0] = left + (width / 2); result.m[3][1] = top + (height / 2.0f); result.m[3][2] = minDepth; result.m[3][3] = 1.0f;
 	return result;
 };
+// 正射影ベクトル
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+	return Multiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
+}
+
+

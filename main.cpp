@@ -111,10 +111,6 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 	}
 }
 
-Vector3 Project(const Vector3& v1, const Vector3& v2) {
-	return (Dot(v1, v2) / powf(Length(v2), 2), v2);
-};
-
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -175,8 +171,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		DrawGrid(ViewProjectionMatrix, ViewportMatrix);
-		DrawSphere(sphere, ViewProjectionMatrix, ViewportMatrix, BLACK);
+		DrawGrid(ViewProjectionMatrix, ViewportMatrix);// グリッドの描画
+
+		DrawSphere(sphere, ViewProjectionMatrix, ViewportMatrix, BLACK);// 球体の描画
 
 
 		///

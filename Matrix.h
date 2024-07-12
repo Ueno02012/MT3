@@ -144,6 +144,23 @@ Matrix4x4 Inverse(const Matrix4x4& matrix) {
 
 	return result;
 };
+//4.合成
+Matrix4x4 Multiply(const Matrix4x4 m1, const Matrix4x4 m2) {
+
+	Matrix4x4 result{};
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			for (int k = 0; k < 4; k++)
+			{
+				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
+			}
+		}
+	}
+
+	return result;
+};
 
 //クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2) {
@@ -194,10 +211,12 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float  width, float height, 
 };
 // 正射影ベクトル
 Vector3 Project(const Vector3& v1, const Vector3& v2) {
+
 	return Multiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
+
 }
 
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-
+	return 
 }
 

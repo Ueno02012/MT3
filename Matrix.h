@@ -13,6 +13,16 @@ Vector3 Add(const Vector3& v1, const Vector3& v2) {
 	return result;
 };
 
+Vector3 Multiply(float v1, const Vector3& v2) {
+	Vector3 result;
+
+	result.x = v1 * v2.x;
+	result.y = v1 * v2.y;
+	result.z = v1 * v2.z;
+
+	return result;
+
+}
 
 // 内積
 float Dot(const Vector3& v1, const Vector3& v2) {
@@ -83,39 +93,7 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 
 }
 
-//4.合成
-Matrix4x4 Multiply(const Matrix4x4 m1, const Matrix4x4 m2) {
 
-	Matrix4x4 result{};
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			for (int k = 0; k < 4; k++)
-			{
-				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
-			}
-		}
-	}
-
-	return result;
-};
-
-//5.3次元アフィン変換
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
-	Matrix4x4 result;
-	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
-	Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
-	Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
-	Matrix4x4 rotateRMatrix = Multiply(rotateXMatrix, Multiply(rotateYMatrix, rotateZMatrix));
-
-	result.m[0][0] = scale.x * rotateRMatrix.m[0][0]; result.m[0][1] = scale.x * rotateRMatrix.m[0][1]; result.m[0][2] = scale.x * rotateRMatrix.m[0][2]; 	result.m[0][3] = 0.0f;
-	result.m[1][0] = scale.y * rotateRMatrix.m[1][0]; result.m[1][1] = scale.y * rotateRMatrix.m[1][1]; result.m[1][2] = scale.y * rotateRMatrix.m[1][2]; result.m[1][3] = 0.0f;
-	result.m[2][0] = scale.z * rotateRMatrix.m[2][0]; result.m[2][1] = scale.z * rotateRMatrix.m[2][1]; result.m[2][2] = scale.z * rotateRMatrix.m[2][2]; result.m[2][3] = 0.0f;
-	result.m[3][0] = translate.x; result.m[3][1] = translate.y; result.m[3][2] = translate.z; result.m[3][3] = 1.0f;
-
-	return result;
-};
 
 //3次元ベクトルを同次座標として変換する 
 Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
@@ -219,4 +197,7 @@ Vector3 Project(const Vector3& v1, const Vector3& v2) {
 	return Multiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
 }
 
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
+
+}
 

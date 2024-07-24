@@ -131,26 +131,17 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 	}
 }
 
-//// 正射影ベクトル
-//Vector3 Project(const Vector3& v1, const Vector3& v2) {
-//
-//	return vMultiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
-//
-//}
-//
-//Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-//
-//	Vector3 segmentVec = segment.diff;
-//
-//	Vector3 pointToOrigin = Subtract(point, segment.origin);
-//
-//	float t = Dot(pointToOrigin, segmentVec) / Dot(segmentVec, segmentVec);
-//
-//	Vector3 closestPointOnSegment = Add(segment.origin, vMultiply(t, segmentVec));
-//
-//	return closestPointOnSegment;
-//
-//}
+
+bool IsCollision(const Sphere& s1, const Sphere& s2) {
+
+	float distance = Length(Subtract(s2.center, s1.center));
+
+	if (distance <= s1.radius + s2.radius) {
+		return true;
+
+	}
+	return false;
+}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -165,11 +156,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
 	Sphere sphere{};
-	Sphere sphere1{};
-	
+	Sphere sphere2{};
+
 	sphere.radius = 0.5f;
-	sphere1.center.x = 1.0f;
-	sphere1.radius = 0.5;
+	sphere2.center.x = 1.0f;
+	sphere2.radius = 0.5;
+
 
 	//Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
 
@@ -208,6 +200,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
+		IsCollision(sphere, sphere2);
+
+
 
 
 
@@ -215,16 +210,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		
+		ImGui::Begin("Window");
+		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
+		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
+		ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
+		ImGui::DragFloat("radius", &sphere.radius, 0.01f);
+		ImGui::End();
 
-
-		//ImGui::Begin("Window");
-		//ImGui::DragFloat3("point", &point.x, 0.01f);
-		//ImGui::DragFloat3("segment origin", &segment.origin.x, 0.01f);
-		//ImGui::DragFloat3("segment diff", &segment.diff.x, 0.01f);
-		//ImGui::InputFloat3("Projet", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		////ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
-		////ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
-		//ImGui::End();
 
 		///
 		/// ↑更新処理ここまで
@@ -237,9 +229,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
-		DrawSphere(sphere1, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
+		if (IsCollision(sphere,sphere2)) {
+			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);// 球体の描画
+		}
+		else {
+			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
+		}
+		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
 
 
 

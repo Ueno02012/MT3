@@ -100,6 +100,24 @@ Matrix4x4 MakeRotateZMatrix(float radian) {
 	return result;
 
 }
+//4.合成
+Matrix4x4 Multiply(const Matrix4x4 m1, const Matrix4x4 m2) {
+
+	Matrix4x4 result{};
+	for (int i = 0; i < 4; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			for (int k = 0; k < 4; k++)
+			{
+				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
+			}
+		}
+	}
+
+	return result;
+};
+
 
 //5.3次元アフィン変換
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
@@ -167,23 +185,6 @@ Matrix4x4 Inverse(const Matrix4x4& matrix) {
 
 	return result;
 };
-//4.合成
-Matrix4x4 Multiply(const Matrix4x4 m1, const Matrix4x4 m2) {
-
-	Matrix4x4 result{};
-	for (int i = 0; i < 4; i++)
-	{
-		for (int j = 0; j < 4; j++)
-		{
-			for (int k = 0; k < 4; k++)
-			{
-				result.m[i][j] += m1.m[i][k] * m2.m[k][j];
-			}
-		}
-	}
-
-	return result;
-};
 
 //クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2) {
@@ -232,24 +233,3 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float  width, float height, 
 	result.m[3][0] = left + (width / 2); result.m[3][1] = top + (height / 2.0f); result.m[3][2] = minDepth; result.m[3][3] = 1.0f;
 	return result;
 };
-// 正射影ベクトル
-Vector3 Project(const Vector3& v1, const Vector3& v2) {
-
-	return vMultiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
-
-}
-
-Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-	
-	Vector3 segmentVec = segment.diff;
-
-	Vector3 pointToOrigin = Subtract(point, segment.origin);
-
-	float t = Dot(pointToOrigin, segmentVec) / Dot(segmentVec, segmentVec);
-
-	Vector3 closestPointOnSegment = Add(segment.origin, vMultiply(t, segmentVec));
-
-	return closestPointOnSegment;
-
-}
-

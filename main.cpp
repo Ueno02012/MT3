@@ -36,6 +36,7 @@ struct Segment {
 
 
 
+
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
 void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMatrix) {
@@ -131,6 +132,26 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 	}
 }
 
+// 正射影ベクトル
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+
+	return vMultiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
+
+}
+
+Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
+
+	Vector3 segmentVec = segment.diff;
+
+	Vector3 pointToOrigin = Subtract(point, segment.origin);
+
+	float t = Dot(pointToOrigin, segmentVec) / Dot(segmentVec, segmentVec);
+
+	Vector3 closestPointOnSegment = Add(segment.origin, vMultiply(t, segmentVec));
+
+	return closestPointOnSegment;
+
+}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -139,16 +160,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
+	Vector3 camaraTranslate = { 0.0f,1.9f,-6.49f };
+	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
+
+
+
+
 	Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-	Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
-	Vector3 closestPoint = ClosestPoint(point, segment);
 
-
-	Sphere pointSphere{ point,0.01f };
-	Sphere closestPointSphere{ closestPoint,0.01f };
 
 
 	// キー入力結果を受け取る箱
@@ -170,18 +192,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
 		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
 
@@ -189,15 +199,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrxi);
 
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-		Matrix4x4 ViewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
-		Matrix4x4 ViewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		//ImGui::Begin("Window");
-		//ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
-		//ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
+
+
+		Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
+		Vector3 closestPoint = ClosestPoint(point, segment);
+
+		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+
+		Sphere pointSphere{ point,0.01f };
+		Sphere closestPointSphere{ closestPoint,0.01f };
+
+
+
+
+
+
+
+
+
+
+		ImGui::Begin("Window");
+		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
+		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
+		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
 		//ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
-		//ImGui::End();
+		ImGui::End();
 
 		///
 		/// ↑更新処理ここまで
@@ -207,7 +239,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		DrawSphere(pointSphere,viewProjec)
+		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
+		DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
+
+
+
+
 
 		///
 		/// ↑描画処理ここまで

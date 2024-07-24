@@ -31,10 +31,6 @@ struct Ray {
 //	Vector3 diff;//!< 終点への差分ベクトル
 //};
 
-struct Sphere {
-	Vector3 center;
-	float radius;
-};
 
 
 
@@ -168,7 +164,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-
+	Sphere sphere{};
+	Sphere sphere1{};
+	
+	sphere.radius = 0.5f;
+	sphere1.center.x = 1.0f;
+	sphere1.radius = 0.5;
 
 	//Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
 
@@ -237,7 +238,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, BLACK);// 球体の描画
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
+		DrawSphere(sphere1, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
 
 
 

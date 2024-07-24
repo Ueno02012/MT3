@@ -220,13 +220,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-
+		
 
 
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
-		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		ImGui::InputFloat3("Project", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		ImGui::DragFloat3("point", &point.x, 0.01f);
+		ImGui::DragFloat3("segment origin", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("segment diff", &segment.diff.x, 0.01f);
+		ImGui::InputFloat3("Projet", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
 		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
 		//ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
 		ImGui::End();
@@ -242,6 +243,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
 		DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
 
+
+		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
+
+		//DrawSphere(sphere, ViewProjectionMatrix, ViewportMatrix, BLACK);// 球体の描画
 
 
 

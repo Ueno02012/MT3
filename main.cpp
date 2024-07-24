@@ -161,7 +161,7 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 bool IsCollision(const Sphere& s1, const Plane& plane) {
 
 
-	float distance = s1.radius - plane.distance;
+	float distance = Dot(s1);
 
 	if (distance <= s1.radius) {
 		return true;

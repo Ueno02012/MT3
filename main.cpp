@@ -233,13 +233,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-		DrawSphere(pointSphere, viewProjectionMatrix, viewportMatrix, RED);
-		DrawSphere(closestPointSphere, viewProjectionMatrix, viewportMatrix, BLACK);
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		//DrawSphere(sphere, ViewProjectionMatrix, ViewportMatrix, BLACK);// 球体の描画
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, BLACK);// 球体の描画
 
 
 

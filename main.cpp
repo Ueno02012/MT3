@@ -26,12 +26,15 @@ struct Ray {
 	Vector3 diff;//!< 終点への差分ベクトル
 };
 
-struct Segment {
-	Vector3 origin;//!< 始点
-	Vector3 diff;//!< 終点への差分ベクトル
+//struct Segment {
+//	Vector3 origin;//!< 始点
+//	Vector3 diff;//!< 終点への差分ベクトル
+//};
+
+struct Sphere {
+	Vector3 center;
+	float radius;
 };
-
-
 
 
 
@@ -132,26 +135,26 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 	}
 }
 
-// 正射影ベクトル
-Vector3 Project(const Vector3& v1, const Vector3& v2) {
-
-	return vMultiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
-
-}
-
-Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-
-	Vector3 segmentVec = segment.diff;
-
-	Vector3 pointToOrigin = Subtract(point, segment.origin);
-
-	float t = Dot(pointToOrigin, segmentVec) / Dot(segmentVec, segmentVec);
-
-	Vector3 closestPointOnSegment = Add(segment.origin, vMultiply(t, segmentVec));
-
-	return closestPointOnSegment;
-
-}
+//// 正射影ベクトル
+//Vector3 Project(const Vector3& v1, const Vector3& v2) {
+//
+//	return vMultiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
+//
+//}
+//
+//Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
+//
+//	Vector3 segmentVec = segment.diff;
+//
+//	Vector3 pointToOrigin = Subtract(point, segment.origin);
+//
+//	float t = Dot(pointToOrigin, segmentVec) / Dot(segmentVec, segmentVec);
+//
+//	Vector3 closestPointOnSegment = Add(segment.origin, vMultiply(t, segmentVec));
+//
+//	return closestPointOnSegment;
+//
+//}
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -163,12 +166,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 camaraTranslate = { 0.0f,1.9f,-6.49f };
 	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
-
-
-
-	Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
-
 	Vector3 point{ -1.5f,0.6f,0.6f };
+
+
+
+	//Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
+
 
 
 
@@ -204,16 +207,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		Vector3 project = Project(Subtract(point, segment.origin), segment.diff);
-		Vector3 closestPoint = ClosestPoint(point, segment);
-
-		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-
-		Sphere pointSphere{ point,0.01f };
-		Sphere closestPointSphere{ closestPoint,0.01f };
-
 
 
 
@@ -223,14 +216,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 
 
-		ImGui::Begin("Window");
-		ImGui::DragFloat3("point", &point.x, 0.01f);
-		ImGui::DragFloat3("segment origin", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("segment diff", &segment.diff.x, 0.01f);
-		ImGui::InputFloat3("Projet", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
-		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
-		//ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
-		ImGui::End();
+		//ImGui::Begin("Window");
+		//ImGui::DragFloat3("point", &point.x, 0.01f);
+		//ImGui::DragFloat3("segment origin", &segment.origin.x, 0.01f);
+		//ImGui::DragFloat3("segment diff", &segment.diff.x, 0.01f);
+		//ImGui::InputFloat3("Projet", &project.x, "%.3f", ImGuiInputTextFlags_ReadOnly);
+		////ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
+		////ImGui::DragFloat("sphere", &sphere.radius, 0.01f);
+		//ImGui::End();
 
 		///
 		/// ↑更新処理ここまで

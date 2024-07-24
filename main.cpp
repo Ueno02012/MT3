@@ -131,16 +131,6 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 }
 
 
-bool IsCollision(const Sphere& s1, const Sphere& s2) {
-
-	float distance = Length(Subtract(s2.center, s1.center));
-
-	if (distance <= s1.radius + s2.radius) {
-		return true;
-
-	}
-	return false;
-}
 Vector3 Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
 		return{ -vector.y,vector.x,0.0f };
@@ -161,7 +151,23 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 		Vector3 point = Add(center, extend);
 		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
 	}
-	
+
+
+	Novice::DrawLine(int(points[0].x), int(points[0].y),int(points[2].x),int(points[2].y),color);
+	Novice::DrawLine(int(points[2].x), int(points[2].y),int(points[1].x),int(points[1].y),color);
+	Novice::DrawLine(int(points[1].x), int(points[1].y),int(points[3].x),int(points[3].y),color);
+	Novice::DrawLine(int(points[3].x), int(points[3].y),int(points[0].x),int(points[0].y),color);
+}
+bool IsCollision(const Sphere& s1, const Plane& plane) {
+
+
+	float distance = s1.radius - plane.distance;
+
+	if (distance <= s1.radius) {
+		return true;
+
+	}
+	return false;
 }
 
 
@@ -177,12 +183,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
 	Sphere sphere{};
-	Sphere sphere2{};
+	//Sphere sphere2{};
+	Plane plane{};
 
 	sphere.radius = 0.5f;
-	sphere2.center.x = 1.0f;
-	sphere2.radius = 0.5;
-
+	//sphere2.center.x = 1.0f;
+	//sphere2.radius = 0.5;
+	plane.normal = { 0.5f,0.0f,0.0f };
+	plane.distance = 1.0f;
 
 	//Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
 
@@ -221,7 +229,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		IsCollision(sphere, sphere2);
+		IsCollision(sphere, plane);
 
 
 
@@ -236,6 +244,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
 		ImGui::DragFloat("radius", &sphere.radius, 0.01f);
+		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.01f);
+		plane.normal = Normalize(plane.normal);
 		ImGui::End();
 
 
@@ -253,13 +263,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		if (IsCollision(sphere,sphere2)) {
+		if (IsCollision(sphere,plane)) {
 			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);// 球体の描画
 		}
 		else {
 			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
 		}
-		DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+		//DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
 
 
 

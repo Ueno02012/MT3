@@ -12,8 +12,16 @@ Vector3 Add(const Vector3& v1, const Vector3& v2) {
 	result.z = (v1.z + v2.z);
 	return result;
 };
+Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
+	Vector3 result;
+	result.x = (v1.x - v2.x);
+	result.y = (v1.y - v2.y);
+	result.z = (v1.z - v2.z);
+	return result;
 
-Vector3 Multiply(float v1, const Vector3& v2) {
+};
+
+Vector3 vMultiply(float v1, const Vector3& v2) {
 	Vector3 result;
 
 	result.x = v1 * v2.x;
@@ -212,11 +220,21 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float  width, float height, 
 // 正射影ベクトル
 Vector3 Project(const Vector3& v1, const Vector3& v2) {
 
-	return Multiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
+	return vMultiply((Dot(v1, v2) / (Length(v2) * Length(v2))), v2);
 
 }
 
 Vector3 ClosestPoint(const Vector3& point, const Segment& segment) {
-	return 
+	
+	Vector3 segmentVec = segment.diff;
+
+	Vector3 pointToOrigin = Subtract(point, segment.origin);
+
+	float t = Dot(pointToOrigin, segmentVec) / Dot(segmentVec, segmentVec);
+
+	Vector3 closestPointOnSegment = Add(segment.origin, vMultiply(t, segmentVec));
+
+	return closestPointOnSegment;
+
 }
 

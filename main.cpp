@@ -140,7 +140,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	plane.normal = { 0.0f,1.0f,0.0f };
 	plane.distance = 1.0f;
 
-	//Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
+	Segment segment{ {-1.0f,-1.0f,0.0f},3.0f,1.0f,1.0f };
 
 
 
@@ -180,7 +180,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 
-		//IsCollision(sphere, plane);
+		IsCollision(segment, plane);
 
 
 
@@ -195,7 +195,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
 		//ImGui::DragFloat("radius", &sphere.radius, 0.01f);
-		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.01f);
+		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
 		plane.normal = Normalize(plane.normal);
 		ImGui::End();
 
@@ -214,12 +215,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		//if (IsCollision(sphere,plane)) {
-		//	DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);// 球体の描画
-		//}
-		//else {
-		//	DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
-		//}
+
+		if (IsCollision(segment,plane)) {
+			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);
+		}
+		else {
+			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		}
+
 		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 		//DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
 

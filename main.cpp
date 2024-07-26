@@ -31,7 +31,10 @@ struct Plane {
 	float distance;
 };
 
-
+struct Segment {
+	Vector3 origin;//!< 始点
+	Vector3 diff;//!< 終点
+};
 
 
 
@@ -73,72 +76,17 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
-{
-	const uint32_t kSubdivision = 12;							//分割数
-	const float kLatStep = (float)M_PI / kSubdivision;			//緯度のステップ
-	const float kLonStep = 2.0f * (float)M_PI / kSubdivision;	//経度のステップ
+bool IsCollision(const Segment& segment, const Plane& plane) {
+	float dot = Dot(plane.normal, segment.diff);
 
-	// 緯度のループ
-	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	{
-		float lat = -0.5f * (float)M_PI + latIndex * kLatStep;	//現在の緯度
-
-		//次の緯度
-		float nextLat = lat + kLatStep;
-
-		//経度のループ
-		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-		{
-			//現在の経度
-			float lon = lonIndex * kLonStep;
-
-			//次の経度
-			float nextLon = lon + kLonStep;
-
-			// 球面座標の計算
-			Vector3 pointA
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(lon)
-			};
-
-			Vector3 pointB
-			{
-				sphere.center.x + sphere.radius * cos(nextLat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(nextLat),
-				sphere.center.z + sphere.radius * cos(nextLat) * sin(lon)
-			};
-
-			Vector3 pointC
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(nextLon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(nextLon)
-			};
-
-			// スクリーン座標に変換
-			pointA = Transform(pointA, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointB = Transform(pointB, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointC = Transform(pointC, Multiply(viewProjectionMatrix, viewportMatrix));
-
-			// 線分の描画
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointB.x, (int)pointB.y, color);
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointC.x, (int)pointC.y, color);
-		}
+	if (dot == 0.0f) {
+		return false;
 	}
-}
-bool IsCollision(const Sphere& s1, const Plane& plane) {
 
+	float t = (plane.distance - Dot(segment.origin, plane.normal)) / dot;
+	
 
-	float distance = Length(Subtract(Dot(plane.normal,s1.center),plane.distance));
-
-	if (distance <= s1.radius) {
-		return true;
-
-	}
-	return false;
+	return (0.0f <= t && t <= 1.0f);
 }
 
 
@@ -182,14 +130,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-	Sphere sphere{};
-	//Sphere sphere2{};
+	//Sphere sphere{};
+	////Sphere sphere2{};
 	Plane plane{};
 
-	sphere.radius = 0.5f;
-	//sphere2.center.x = 1.0f;
-	//sphere2.radius = 0.5;
-	plane.normal = { 0.5f,0.0f,0.0f };
+	//sphere.radius = 0.5f;
+	////sphere2.center.x = 1.0f;
+	////sphere2.radius = 0.5;
+	plane.normal = { 0.0f,1.0f,0.0f };
 	plane.distance = 1.0f;
 
 	//Segment segment{ {-2.0f,-1.0f,0.0f},3.0f,2.0f,2.0f };
@@ -229,7 +177,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		IsCollision(sphere, plane);
+		//IsCollision(sphere, plane);
 
 
 
@@ -242,8 +190,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
-		ImGui::DragFloat("radius", &sphere.radius, 0.01f);
+		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
+		//ImGui::DragFloat("radius", &sphere.radius, 0.01f);
 		ImGui::DragFloat3("Plane.Normal", &plane.normal.x, 0.01f);
 		plane.normal = Normalize(plane.normal);
 		ImGui::End();
@@ -263,12 +211,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		if (IsCollision(sphere,plane)) {
-			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);// 球体の描画
-		}
-		else {
-			DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
-		}
+		//if (IsCollision(sphere,plane)) {
+		//	DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, RED);// 球体の描画
+		//}
+		//else {
+		//	DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
+		//}
 		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
 		//DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
 

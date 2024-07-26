@@ -129,6 +129,17 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 		}
 	}
 }
+bool IsCollision(const Sphere& s1, const Plane& plane) {
+
+
+	float distance = Length(Subtract(Dot(plane.normal,s1.center),plane.distance));
+
+	if (distance <= s1.radius) {
+		return true;
+
+	}
+	return false;
+}
 
 
 Vector3 Perpendicular(const Vector3& vector) {
@@ -157,17 +168,6 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 	Novice::DrawLine(int(points[2].x), int(points[2].y),int(points[1].x),int(points[1].y),color);
 	Novice::DrawLine(int(points[1].x), int(points[1].y),int(points[3].x),int(points[3].y),color);
 	Novice::DrawLine(int(points[3].x), int(points[3].y),int(points[0].x),int(points[0].y),color);
-}
-bool IsCollision(const Sphere& s1, const Plane& plane) {
-
-
-	float distance = Dot(s1);
-
-	if (distance <= s1.radius) {
-		return true;
-
-	}
-	return false;
 }
 
 

@@ -80,6 +80,38 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 }
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
 
+	Vector3 edge1 = Subtract(triangle.vertices[1], triangle.vertices[0]);
+	Vector3 edge2 = Subtract(triangle.vertices[2], triangle.vertices[0]);
+
+	Vector3 normal = Cross(edge1, edge2);
+	normal = Normalize(normal);
+
+	Vector3 dir = segment.diff;
+	dir = Normalize(dir);
+
+	Vector3 diff = Subtract(triangle.vertices[0], segment.origin);
+
+	float dotND = Dot(normal, dir);
+	if (fabs(dotND) < 1e-6f) {
+		return false;
+	}
+
+	float t = Dot(normal, diff);
+	if (t < 0.0f || t>Length(segment.diff)) {
+		return false;
+	}
+
+	Vector3 intersection = Add(segment.origin, vMultiply(t, dir));
+
+	Vector3 c0 = Cross(Subtract(triangle.vertices[1], triangle.vertices[0]), Subtract(intersection, triangle.vertices[0]));
+	Vector3 c1 = Cross(Subtract(triangle.vertices[2], triangle.vertices[1]), Subtract(intersection, triangle.vertices[1]));
+	Vector3 c2 = Cross(Subtract(triangle.vertices[0], triangle.vertices[2]), Subtract(intersection, triangle.vertices[2]));
+
+	if (Dot(c0, normal) >= 0.0f && Dot(c1, normal) >= 0.0f && Dot(c2, normal) >= 0.0f) {
+
+		return true;
+	}
+	return false;
 }
 
 

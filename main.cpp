@@ -35,7 +35,9 @@ struct Segment {
 	Vector3 origin;//!< 始点
 	Vector3 diff;//!< 終点
 };
-
+struct Triangle {
+	Vector3 vertices[3];//!<頂点
+};
 
 
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
@@ -76,17 +78,8 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-bool IsCollision(const Segment& segment, const Plane& plane) {
-	float dot = Dot(plane.normal, segment.diff);
+bool IsCollision(const Triangle& triangle, const Segment& segment) {
 
-	if (dot == 0.0f) {
-		return false;
-	}
-
-	float t = (plane.distance - Dot(segment.origin, plane.normal)) / dot;
-	
-
-	return (0.0f <= t && t <= 1.0f);
 }
 
 
@@ -96,27 +89,27 @@ Vector3 Perpendicular(const Vector3& vector) {
 	}
 	return { 0.0f,-vector.z,vector.y };
 }
-void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	Vector3 center = vMultiply(plane.distance, plane.normal);// 1
-	Vector3 perpendiculars[4];
-	perpendiculars[0] = Normalize(Perpendicular(plane.normal));// 2
-	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };//3
-	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);// 4
-	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };// 5
-	// 6
-	Vector3 points[4];
-	for (int32_t index = 0; index < 4; ++index) {
-		Vector3 extend = vMultiply(2.0f, perpendiculars[index]);
-		Vector3 point = Add(center, extend);
-		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
-	}
-
-
-	Novice::DrawLine(int(points[0].x), int(points[0].y),int(points[2].x),int(points[2].y),color);
-	Novice::DrawLine(int(points[2].x), int(points[2].y),int(points[1].x),int(points[1].y),color);
-	Novice::DrawLine(int(points[1].x), int(points[1].y),int(points[3].x),int(points[3].y),color);
-	Novice::DrawLine(int(points[3].x), int(points[3].y),int(points[0].x),int(points[0].y),color);
-}
+//void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+//	Vector3 center = vMultiply(plane.distance, plane.normal);// 1
+//	Vector3 perpendiculars[4];
+//	perpendiculars[0] = Normalize(Perpendicular(plane.normal));// 2
+//	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };//3
+//	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);// 4
+//	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };// 5
+//	// 6
+//	Vector3 points[4];
+//	for (int32_t index = 0; index < 4; ++index) {
+//		Vector3 extend = vMultiply(2.0f, perpendiculars[index]);
+//		Vector3 point = Add(center, extend);
+//		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
+//	}
+//
+//
+//	Novice::DrawLine(int(points[0].x), int(points[0].y),int(points[2].x),int(points[2].y),color);
+//	Novice::DrawLine(int(points[2].x), int(points[2].y),int(points[1].x),int(points[1].y),color);
+//	Novice::DrawLine(int(points[1].x), int(points[1].y),int(points[3].x),int(points[3].y),color);
+//	Novice::DrawLine(int(points[3].x), int(points[3].y),int(points[0].x),int(points[0].y),color);
+//}
 
 
 // Windowsアプリでのエントリーポイント(main関数)

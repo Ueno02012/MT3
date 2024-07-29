@@ -87,6 +87,9 @@ bool IsCollision(const Triangle& triangle, const Segment& segment) {
 }
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 vertexces[8];
+	for (int32_t index = 0; index < 8; ++index) {
+		vertexces[index] = Transform(Transform(aabb.max[index], viewProjectionMatrix), viewportMatrix);
+	}
 
 
 }

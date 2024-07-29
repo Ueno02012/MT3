@@ -121,27 +121,22 @@ Vector3 Perpendicular(const Vector3& vector) {
 	}
 	return { 0.0f,-vector.z,vector.y };
 }
-//void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-//	Vector3 center = vMultiply(plane.distance, plane.normal);// 1
-//	Vector3 perpendiculars[4];
-//	perpendiculars[0] = Normalize(Perpendicular(plane.normal));// 2
-//	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };//3
-//	perpendiculars[2] = Cross(plane.normal, perpendiculars[0]);// 4
-//	perpendiculars[3] = { -perpendiculars[2].x,-perpendiculars[2].y,-perpendiculars[2].z };// 5
-//	// 6
-//	Vector3 points[4];
-//	for (int32_t index = 0; index < 4; ++index) {
-//		Vector3 extend = vMultiply(2.0f, perpendiculars[index]);
-//		Vector3 point = Add(center, extend);
-//		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
-//	}
-//
-//
-//	Novice::DrawLine(int(points[0].x), int(points[0].y),int(points[2].x),int(points[2].y),color);
-//	Novice::DrawLine(int(points[2].x), int(points[2].y),int(points[1].x),int(points[1].y),color);
-//	Novice::DrawLine(int(points[1].x), int(points[1].y),int(points[3].x),int(points[3].y),color);
-//	Novice::DrawLine(int(points[3].x), int(points[3].y),int(points[0].x),int(points[0].y),color);
-//}
+///
+///三角形の描画
+///
+void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	// 三角形の各頂点を変換する
+	Vector3 transformedVertices[3];
+	for (int32_t index = 0; index < 3; ++index) {
+		transformedVertices[index] = Transform(Transform(triangle.vertices[index], viewProjectionMatrix), viewportMatrix);
+	}
+
+	// 描画
+	Novice::DrawLine(static_cast<int>(transformedVertices[0].x), static_cast<int>(transformedVertices[0].y), static_cast<int>(transformedVertices[1].x), static_cast<int>(transformedVertices[1].y), color);
+	Novice::DrawLine(static_cast<int>(transformedVertices[1].x), static_cast<int>(transformedVertices[1].y), static_cast<int>(transformedVertices[2].x), static_cast<int>(transformedVertices[2].y), color);
+	Novice::DrawLine(static_cast<int>(transformedVertices[2].x), static_cast<int>(transformedVertices[2].y), static_cast<int>(transformedVertices[0].x), static_cast<int>(transformedVertices[0].y), color);
+}
+
 
 
 // Windowsアプリでのエントリーポイント(main関数)
@@ -155,20 +150,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-	//Sphere sphere{};
-	////Sphere sphere2{};
-	Plane plane{};
-
-	//sphere.radius = 0.5f;
-	////sphere2.center.x = 1.0f;
-	////sphere2.radius = 0.5;
-	plane.normal = { 0.0f,1.0f,0.0f };
-	plane.distance = 1.0f;
 
 	Segment segment{ {-1.0f,-1.0f,0.0f},3.0f,1.0f,1.0f };
 
-
-
+	Triangle triangle[] = { {0.0f,2.0f,0.0f},{2.0f,-2.0f,0.0f},{-2.0f,-2.0f,0.0f} };
+	
 
 
 	// キー入力結果を受け取る箱
@@ -200,12 +186,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		//Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		//Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 
-		IsCollision(segment, plane);
 
 
 
@@ -221,8 +206,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
 		//ImGui::DragFloat("radius", &sphere.radius, 0.01f);
 		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
-		ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
-		plane.normal = Normalize(plane.normal);
+		//ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
+		//plane.normal = Normalize(plane.normal);
 		ImGui::End();
 
 
@@ -240,18 +225,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-
-		if (IsCollision(segment,plane)) {
-			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);
+		for (int i = 0; i < 3; ++i) {
+			//if (IsCollision(triangle[i], segment)) {
+			//	DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix, RED);
+			//}
+			//else {
+			//	DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix, WHITE);
+			//}
+			DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix,WHITE);
 		}
-		else {
-			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-		}
-
-		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
-		//DrawSphere(sphere2, viewProjectionMatrix, viewportMatrix, WHITE);// 球体の描画
-
-
 
 
 		///

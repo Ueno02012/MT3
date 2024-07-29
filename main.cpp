@@ -190,6 +190,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
+		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 
 

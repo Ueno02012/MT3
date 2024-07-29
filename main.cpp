@@ -86,9 +86,20 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
 }
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	Vector3 vertexces[8];
+	Vector3 vertexces[8] = {
+		{aabb.min.x,aabb.min.y,aabb.min.z},// 0 手前の左下の点
+		{aabb.max.x,aabb.min.y,aabb.min.z},// 1 手前の右下の点
+		{aabb.max.x,aabb.min.y,aabb.max.z},// 2 奥の右下の点
+		{aabb.min.x,aabb.min.y,aabb.max.z},// 3 奥の左下の点
+		{aabb.min.x,aabb.max.y,aabb.min.z},// 4
+		{aabb.max.x,aabb.max.y,aabb.min.z},// 5
+		{aabb.max.x,aabb.max.y,aabb.max.z},// 6
+		{aabb.min.x,aabb.max.y,aabb.max.z},
+
+	};
+		
 	for (int32_t index = 0; index < 8; ++index) {
-		vertexces[index] = Transform(Transform(aabb.max[index], viewProjectionMatrix), viewportMatrix);
+		vertexces[index] = Transform(Transform(vertexces[index], viewProjectionMatrix), viewportMatrix);
 	}
 
 

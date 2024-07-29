@@ -86,7 +86,7 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
 }
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-
+	Vector3 vertexes[8];
 }
 
 ///

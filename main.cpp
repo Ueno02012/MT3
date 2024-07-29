@@ -79,43 +79,49 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 
 }
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
-
+	// 三角形の辺を計算
 	Vector3 edge1 = Subtract(triangle.vertices[1], triangle.vertices[0]);
 	Vector3 edge2 = Subtract(triangle.vertices[2], triangle.vertices[0]);
 
+	// 三角形の法線ベクトルを計算
 	Vector3 normal = Cross(edge1, edge2);
 	normal = Normalize(normal);
 
+	// 線分の方向ベクトルを正規化
 	Vector3 dir = segment.diff;
 	dir = Normalize(dir);
 
+	// 線分の始点と三角形の頂点の差分ベクトル
 	Vector3 diff = Subtract(triangle.vertices[0], segment.origin);
 
+	// 線分が平面と平行かどうかをチェック
 	float dotND = Dot(normal, dir);
 	if (fabs(dotND) < 1e-6f) {
 		return false;
 	}
 
-	float t = Dot(normal, diff);
+	// 交点までの距離 t を計算
+	float t = Dot(normal, diff) / dotND;
 	if (t < 0.0f || t > Length(segment.diff)) {
-		return false;
+		return false; // 線分が平面外にある
 	}
 
+	// 交点を計算
 	Vector3 intersection = Add(segment.origin, vMultiply(t, dir));
 
+	// 交点が三角形内にあるかどうかをチェック
 	Vector3 c0 = Cross(Subtract(triangle.vertices[1], triangle.vertices[0]), Subtract(intersection, triangle.vertices[0]));
 	Vector3 c1 = Cross(Subtract(triangle.vertices[2], triangle.vertices[1]), Subtract(intersection, triangle.vertices[1]));
 	Vector3 c2 = Cross(Subtract(triangle.vertices[0], triangle.vertices[2]), Subtract(intersection, triangle.vertices[2]));
 
-	if (Dot(c0, normal) >= 0.0f && 
-		Dot(c1, normal) >= 0.0f && 
+	// 各クロス積のドット積が法線ベクトルと同じ方向かをチェック
+	if (Dot(c0, normal) >= 0.0f &&
+		Dot(c1, normal) >= 0.0f &&
 		Dot(c2, normal) >= 0.0f) {
-
-		return true;
+		return true; // 交点が三角形内にある
 	}
-	return false;
+	return false; // 交点が三角形外にある
 }
-
 
 ///
 ///三角形の描画

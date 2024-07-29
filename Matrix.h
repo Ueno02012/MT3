@@ -233,3 +233,11 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float  width, float height, 
 	result.m[3][0] = left + (width / 2); result.m[3][1] = top + (height / 2.0f); result.m[3][2] = minDepth; result.m[3][3] = 1.0f;
 	return result;
 };
+Matrix4x4 MakeRotateMatrix(const Vector3& rotate) {
+	Matrix4x4 rx = MakeRotateXMatrix(rotate.x);
+	Matrix4x4 ry = MakeRotateYMatrix(rotate.y);
+	Matrix4x4 rz = MakeRotateZMatrix(rotate.z);
+
+	// 回転行列の掛け合わせ順序はY, X, Zとする
+	return Multiply(ry, Multiply(rx, rz));
+}

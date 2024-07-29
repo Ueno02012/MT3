@@ -140,6 +140,23 @@ void DrawTriangle(const Triangle& triangle, const Matrix4x4& viewProjectionMatri
 }
 
 
+///
+///カメラの位置
+///
+Matrix4x4 LookAt(const Vector3& eye, const Vector3& target, const Vector3& up) {
+	Vector3 zaxis = Normalize(Subtract(target , eye));    // 前方向ベクトル
+	Vector3 xaxis = Normalize(Cross(up, zaxis)); // 右方向ベクトル
+	Vector3 yaxis = Cross(zaxis, xaxis);        // 上方向ベクトル
+
+	Matrix4x4 viewMatrix = {
+		xaxis.x, yaxis.x, zaxis.x, 0,
+		xaxis.y, yaxis.y, zaxis.y, 0,
+		xaxis.z, yaxis.z, zaxis.z, 0,
+		-Dot(xaxis, eye), -Dot(yaxis, eye), -Dot(zaxis, eye), 1
+	};
+
+	return viewMatrix;
+}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -147,8 +164,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	Vector3 camaraTranslate = { 0.0f,1.9f,-6.49f };
-	Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
+	//Vector3 camaraTranslate = { 0.0f,1.9f,-6.49f };
+	//Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
@@ -160,7 +177,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	triangle.vertices[1] = { 1.0f,-1.0f,1.0f };
 	triangle.vertices[2] = { -1.0f,-1.0f,0.0f };
 
-
+	// カメラ行列
+	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
+	Vector3 cameraRotate{ 0.26f, 0.0f, 0.0f };
+	Sphere cameraTarget;
+	cameraTarget.center = { 0.0f, 0.0f, 0.0f }; // カメラのターゲットポイント
+	cameraTarget.radius = 0.01f;
+	int lastMouseX = 0;
+	int lastMouseY = 0;
+	int mouseX = 0;
+	int mouseY = 0;
+	bool IsDebugCameraActive = false;
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
@@ -183,7 +210,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
 		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
 
-		Matrix4x4 cameraMatrxi = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, camaraTranslate);
+		Matrix4x4 cameraMatrxi = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
 		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrxi);
 
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
@@ -198,13 +225,48 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		
 
+		/// ===デバックカメラ起動=== ///
+		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+			if (IsDebugCameraActive) {
+				IsDebugCameraActive = false;
+			}
+			else {
+				IsDebugCameraActive = true;
+			}
+		}
 
+		/// ===デバックカメラ起動=== ///
+		// デバッグカメラが有効になっている場合、マウスの動きによってカメラを回転させる
+		if (IsDebugCameraActive) {
+			Novice::GetMousePosition(&mouseX, &mouseY);
+
+			if (Novice::IsPressMouse(0)) {
+				// マウスの移動量を計算
+				int deltaX = mouseX - lastMouseX;
+				int deltaY = mouseY - lastMouseY;
+
+				// カメラの回転を更新
+				float rotationSpeed = 0.005f;
+				cameraRotate.y += deltaX * rotationSpeed;
+				cameraRotate.x += deltaY * rotationSpeed;
+
+				// カメラの位置をターゲットポイントの周りに回転
+				float distance = Length(Subtract(cameraTranslate , cameraTarget.center));
+				Matrix4x4 rotationMatrix = MakeRotateMatrix(cameraRotate);
+				Vector3 offset = { 0.0f, 0.0f, -distance };
+				cameraTranslate = Add(cameraTarget.center , Transform(offset, rotationMatrix));
+			}
+
+			// マウスの位置を更新
+			lastMouseX = mouseX;
+			lastMouseY = mouseY;
+		}
 
 		
 
 		
 		ImGui::Begin("Window");
-		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
+		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		//ImGui::DragFloat("radius", &sphere.radius, 0.01f);
 		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);

@@ -97,7 +97,7 @@ bool IsCollision(const Triangle& triangle, const Segment& segment) {
 	}
 
 	float t = Dot(normal, diff);
-	if (t < 0.0f || t>Length(segment.diff)) {
+	if (t < 0.0f || t > Length(segment.diff)) {
 		return false;
 	}
 
@@ -151,12 +151,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
 
-	Segment segment{ {-1.0f,-1.0f,0.0f},3.0f,1.0f,1.0f };
+	Segment segment{ {-1.0f,-1.0f,0.0f},-1.0f,0.0f,3.0f };
 
 	Triangle triangle;
-	triangle.vertices[0] = { 0.0f,2.0f,0.0f };
-	triangle.vertices[1] = { 2.0f,-2.0f,0.0f };
-	triangle.vertices[2] = { -2.0f,-2.0f,0.0f };
+	triangle.vertices[0] = { 0.0f,1.0f,1.0f };
+	triangle.vertices[1] = { 1.0f,-1.0f,1.0f };
+	triangle.vertices[2] = { -1.0f,-1.0f,0.0f };
 
 
 	// キー入力結果を受け取る箱
@@ -194,7 +194,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
-
+		
 
 
 
@@ -226,14 +226,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);//三角形の描画(ワイヤー)
 
-			//if (IsCollision(triangle[i], segment)) {
-			//	DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix, RED);
-			//}
-			//else {
-			//	DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix, WHITE);
-			//}
+		if (IsCollision(triangle,segment)) {
+			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);//当たったら赤
+		}
+		else {
+			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);//何もないとき白
+		}
 
 
 		///

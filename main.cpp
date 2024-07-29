@@ -153,8 +153,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Segment segment{ {-1.0f,-1.0f,0.0f},3.0f,1.0f,1.0f };
 
-	Triangle triangle[] = { {0.0f,2.0f,0.0f},{2.0f,-2.0f,0.0f},{-2.0f,-2.0f,0.0f} };
-	
+	Triangle triangle;
+	triangle.vertices[0] = { 0.0f,2.0f,0.0f };
+	triangle.vertices[1] = { 2.0f,-2.0f,0.0f };
+	triangle.vertices[2] = { -2.0f,-2.0f,0.0f };
 
 
 	// キー入力結果を受け取る箱
@@ -186,11 +188,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
-		//Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		//Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
-		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-
-
 
 
 
@@ -200,10 +197,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		
+
+		
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("camaraTranslate", &camaraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		//ImGui::DragFloat3("sphere", &sphere.center.x, 0.01f);
 		//ImGui::DragFloat("radius", &sphere.radius, 0.01f);
 		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 		//ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
@@ -225,15 +223,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		for (int i = 0; i < 3; ++i) {
+		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);
+
 			//if (IsCollision(triangle[i], segment)) {
 			//	DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix, RED);
 			//}
 			//else {
 			//	DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix, WHITE);
 			//}
-			DrawTriangle(triangle[i], viewProjectionMatrix, viewportMatrix,WHITE);
-		}
 
 
 		///

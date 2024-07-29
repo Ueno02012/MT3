@@ -86,7 +86,9 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 bool IsCollision(const Triangle& triangle, const Segment& segment) {
 }
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	Vector3 vertexes[8];
+	Vector3 vertexces[8];
+
+
 }
 
 ///
@@ -137,6 +139,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int mouseX = 0;
 	int mouseY = 0;
 	bool IsDebugCameraActive = false;
+
+	
+	AABB aabb1{
+		.min{-0.5f,-0.5f,-0.5f},
+		.max{0.0f,0.0f,0.0f},
+	};
+
+
+	AABB aabb2{
+		.min{0.2f,0.2f,0.2f},
+		.max{1.0f,1.0f,1.0f},
+	};
+
+	aabb1.min.x = aabb1.min.x,aabb1.max.x;
+	aabb1.max.x = aabb1.min.x, aabb1.max.x;
+
+	aabb1.min.y = aabb1.min.y, aabb1.max.y;
+	aabb1.max.y = aabb1.min.y, aabb1.max.y;
+
+	aabb1.min.z = aabb1.min.z, aabb1.max.z;
+	aabb1.max.z = aabb1.min.z, aabb1.max.z;
+
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };

@@ -107,7 +107,9 @@ bool IsCollision(const Triangle& triangle, const Segment& segment) {
 	Vector3 c1 = Cross(Subtract(triangle.vertices[2], triangle.vertices[1]), Subtract(intersection, triangle.vertices[1]));
 	Vector3 c2 = Cross(Subtract(triangle.vertices[0], triangle.vertices[2]), Subtract(intersection, triangle.vertices[2]));
 
-	if (Dot(c0, normal) >= 0.0f && Dot(c1, normal) >= 0.0f && Dot(c2, normal) >= 0.0f) {
+	if (Dot(c0, normal) >= 0.0f && 
+		Dot(c1, normal) >= 0.0f && 
+		Dot(c2, normal) >= 0.0f) {
 
 		return true;
 	}
@@ -115,12 +117,6 @@ bool IsCollision(const Triangle& triangle, const Segment& segment) {
 }
 
 
-Vector3 Perpendicular(const Vector3& vector) {
-	if (vector.x != 0.0f || vector.y != 0.0f) {
-		return{ -vector.y,vector.x,0.0f };
-	}
-	return { 0.0f,-vector.z,vector.y };
-}
 ///
 ///三角形の描画
 ///
@@ -198,7 +194,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-
 		
 
 		
@@ -226,7 +221,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);//三角形の描画(ワイヤー)
 
 		if (IsCollision(triangle,segment)) {
 			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);//当たったら赤
@@ -234,6 +228,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		else {
 			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);//何もないとき白
 		}
+		DrawTriangle(triangle, viewProjectionMatrix, viewportMatrix, WHITE);//三角形の描画(ワイヤー)
 
 
 		///

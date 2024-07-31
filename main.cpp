@@ -66,100 +66,56 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-//当たり判定
-bool IsCollision(const AABB& aabb, const Segment& segment) {
-	Vector3 seg1 = segment.origin;
-	Vector3 seg2 = Add(segment.origin, segment.diff);
 
-	float tMin = 0.0f;
-	float tMax = 1.0f;
-
-	// X軸方向での判定
-	if (std::abs(segment.diff.x) < 1e-8) {
-		if (seg1.x < aabb.min.x || seg1.x > aabb.max.x) {
-			return false;
-		}
-	}
-	else {
-		float od = 1.0f / segment.diff.x;
-		float t1 = (aabb.min.x - seg1.x) * od;
-		float t2 = (aabb.max.x - seg1.x) * od;
-		if (t1 > t2) std::swap(t1, t2);
-		if (t1 > tMin) tMin = t1; 
-		if (t2 < tMax) tMax = t2; 
-		if (tMin > tMax) return false;
-	}
-
-	// Y軸方向での判定
-	if (std::abs(segment.diff.y) < 1e-8) {
-		if (seg1.y < aabb.min.y || seg1.y > aabb.max.y) {
-			return false;
-		}
-	}
-	else {
-		float od = 1.0f / segment.diff.y;
-		float t1 = (aabb.min.y - seg1.y) * od;
-		float t2 = (aabb.max.y - seg1.y) * od;
-		if (t1 > t2) std::swap(t1, t2);
-		if (t1 > tMin) tMin = t1; 
-		if (t2 < tMax) tMax = t2; 
-		if (tMin > tMax) return false;
-	}
-
-	// Z軸方向での判定
-	if (std::abs(segment.diff.z) < 1e-8) {
-		if (seg1.z < aabb.min.z || seg1.z > aabb.max.z) {
-			return false;
-		}
-	}
-	else {
-		float od = 1.0f / segment.diff.z;
-		float t1 = (aabb.min.z - seg1.z) * od;
-		float t2 = (aabb.max.z - seg1.z) * od;
-		if (t1 > t2) std::swap(t1, t2);
-		if (t1 > tMin) tMin = t1; 
-		if (t2 < tMax) tMax = t2; 
-		if (tMin > tMax) return false;
-	}
-
-	// すべての軸方向での判定を通過した場合、衝突している
-	return true;
+ Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
+	 return Vector3(
+		 { v1.x + (v2.x - v1.x) * t },
+		 { v1.y + (v2.y - v1.y) * t },
+		 { v1.z + (v2.z - v1.z) * t }
+	);
 }
-
-void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	Vector3 vertexces[8] = {
-		{aabb.min.x,aabb.min.y,aabb.min.z},// 0 手前の左下の点
-		{aabb.max.x,aabb.min.y,aabb.min.z},// 1 手前の右下の点
-		{aabb.max.x,aabb.min.y,aabb.max.z},// 2 奥の右下の点
-		{aabb.min.x,aabb.min.y,aabb.max.z},// 3 奥の左下の点
-		{aabb.min.x,aabb.max.y,aabb.min.z},// 4
-		{aabb.max.x,aabb.max.y,aabb.min.z},// 5
-		{aabb.max.x,aabb.max.y,aabb.max.z},// 6
-		{aabb.min.x,aabb.max.y,aabb.max.z},
-
-	};
-		
-	for (int32_t index = 0; index < 8; ++index) {
-		vertexces[index] = Transform(Transform(vertexces[index], viewProjectionMatrix), viewportMatrix);
-	}
-	Novice::DrawLine(int(vertexces[0].x), int(vertexces[0].y), int(vertexces[1].x), int(vertexces[1].y), color);
-	Novice::DrawLine(int(vertexces[1].x), int(vertexces[1].y), int(vertexces[2].x), int(vertexces[2].y), color);
-	Novice::DrawLine(int(vertexces[2].x), int(vertexces[2].y), int(vertexces[3].x), int(vertexces[3].y), color);
-	Novice::DrawLine(int(vertexces[3].x), int(vertexces[3].y), int(vertexces[0].x), int(vertexces[0].y), color);
-
-	Novice::DrawLine(int(vertexces[4].x), int(vertexces[4].y), int(vertexces[5].x), int(vertexces[5].y), color);
-	Novice::DrawLine(int(vertexces[5].x), int(vertexces[5].y), int(vertexces[6].x), int(vertexces[6].y), color);
-	Novice::DrawLine(int(vertexces[6].x), int(vertexces[6].y), int(vertexces[7].x), int(vertexces[7].y), color);
-	Novice::DrawLine(int(vertexces[7].x), int(vertexces[7].y), int(vertexces[4].x), int(vertexces[4].y), color);
-
-	Novice::DrawLine(int(vertexces[0].x), int(vertexces[0].y), int(vertexces[4].x), int(vertexces[4].y), color);
-	Novice::DrawLine(int(vertexces[1].x), int(vertexces[1].y), int(vertexces[5].x), int(vertexces[5].y), color);
-	Novice::DrawLine(int(vertexces[2].x), int(vertexces[2].y), int(vertexces[6].x), int(vertexces[6].y), color);
-	Novice::DrawLine(int(vertexces[3].x), int(vertexces[3].y), int(vertexces[7].x), int(vertexces[7].y), color);
+ // ベジエ曲線上の点を計算する関数
+ Vector3 QuadraticBezier(const Vector3& P0, const Vector3& P1, const Vector3& P2, float t) {
+	 Vector3 a = Lerp(P0, P1, t);
+	 Vector3 b = Lerp(P1, P2, t);
+	 return Lerp(a, b, t);
+ }
 
 
-}
+ // クリップ空間の座標をビューポート空間の座標に変換する関数（簡易的な実装）
+ Vector3 ViewportTransform(const Vector3& v, const Matrix4x4& viewportMatrix) {
+	 return Transform(v, viewportMatrix);
+ }
 
+ void DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2,
+	 const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+
+	 // ベジエ曲線の分割数を設定
+	 const uint32_t segments = 100;
+
+	 // 始点をスクリーンに変換
+	 Vector3 prevPoint = Transform(controlPoint0, viewProjectionMatrix);
+	 prevPoint = ViewportTransform(prevPoint, viewportMatrix);
+
+	 // 分割数に従ってベジエ曲線を描画
+	 for (uint32_t i = 1; i <= segments; ++i) {
+		 // 現在の分割位置を計算
+		 float t = static_cast<float>(i) / segments;
+
+		 // ベジエ曲線上の現在の点を計算
+		 Vector3 point = QuadraticBezier(controlPoint0, controlPoint1, controlPoint2, t);
+
+		 // 現在の点をクリップ空間の座標に変換
+		 point = Transform(point, viewProjectionMatrix);
+
+		 // クリップ空間の座標をビューポート空間の座標に変換
+		 point = ViewportTransform(point, viewportMatrix);
+
+		 Novice::DrawLine(int(prevPoint.x), int(prevPoint.y), int(point.x), int(point.y), color);
+		 
+		 prevPoint = point;
+	 }
+ }
 ///
 ///カメラの位置
 ///
@@ -187,17 +143,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-	AABB aabb1{
-	.min{-0.5f,-0.5f,-0.5f},
-	.max{0.0f,0.0f,0.0f},
-	};
+	Vector3 P0 = { 0, 0, 0 };
+	Vector3 P1 = { 1, 2, 0 };
+	Vector3 P2 = { 2, 0, 0 };
+	Vector3 P3 = { 3, 2, 0 };
 
+	//float t = 0.5f;
 
 	Segment segment{ 
 		.origin{-0.7f,0.3f,0.0f},
 		.diff{2.0f,-0.5f,0.0f}
 	};
 
+	Vector3 controlPoints[3] = {
+		{-0.8f,0.58f,1.0f},
+		{1.76f,1.0f,-0.3f},
+		{0.94f,-0.7f,2.3f},
+	};
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -294,8 +256,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
-		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
+		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
+		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
 		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 
 
@@ -312,13 +275,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		if (IsCollision(aabb1, segment)) {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
-		}
-		else {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
-		}
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, BLUE);
 
 		///
 		/// ↑描画処理ここまで

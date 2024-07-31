@@ -85,8 +85,8 @@ bool IsCollision(const AABB& aabb, const Segment& segment) {
 		float t1 = (aabb.min.x - seg1.x) * od;
 		float t2 = (aabb.max.x - seg1.x) * od;
 		if (t1 > t2) std::swap(t1, t2);
-		if (t1 > tMin) tMin = t1; // tMin = std::max(tMin, t1);
-		if (t2 < tMax) tMax = t2; // tMax = std::min(tMax, t2);
+		if (t1 > tMin) tMin = t1; 
+		if (t2 < tMax) tMax = t2; 
 		if (tMin > tMax) return false;
 	}
 
@@ -101,8 +101,8 @@ bool IsCollision(const AABB& aabb, const Segment& segment) {
 		float t1 = (aabb.min.y - seg1.y) * od;
 		float t2 = (aabb.max.y - seg1.y) * od;
 		if (t1 > t2) std::swap(t1, t2);
-		if (t1 > tMin) tMin = t1; // tMin = std::max(tMin, t1);
-		if (t2 < tMax) tMax = t2; // tMax = std::min(tMax, t2);
+		if (t1 > tMin) tMin = t1; 
+		if (t2 < tMax) tMax = t2; 
 		if (tMin > tMax) return false;
 	}
 
@@ -117,8 +117,8 @@ bool IsCollision(const AABB& aabb, const Segment& segment) {
 		float t1 = (aabb.min.z - seg1.z) * od;
 		float t2 = (aabb.max.z - seg1.z) * od;
 		if (t1 > t2) std::swap(t1, t2);
-		if (t1 > tMin) tMin = t1; // tMin = std::max(tMin, t1);
-		if (t2 < tMax) tMax = t2; // tMax = std::min(tMax, t2);
+		if (t1 > tMin) tMin = t1; 
+		if (t2 < tMax) tMax = t2; 
 		if (tMin > tMax) return false;
 	}
 

@@ -7,6 +7,7 @@
 #include "Sphere.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
+#include <algorithm>
 #include<imgui.h>
 
 static const int KRowHeight = 20;
@@ -61,10 +62,19 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
-	if((aabb1.min.x<=aabb2.max.x && aabb1.max.x>=aabb2.min.x)&&
-		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
-		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) {
+bool IsCollision(const AABB& aabb, const Sphere& sphere) {
+	//　最近接点を求める
+	Vector3 closestPoint{ 
+		std::clamp(sphere.center.x,aabb.min.x,aabb.max.x),
+		std::clamp(sphere.center.y,aabb.min.y,aabb.max.y),
+		std::clamp(sphere.center.z,aabb.min.z,aabb.max.z),
+	};
+	// 最近接点と弾の中心との距離を求める
+	float distance = Length(Subtract(closestPoint, sphere.center));
+
+	// 距離が半径よりも小さければ衝突
+	if (distance <= sphere.radius) {
+		// 衝突
 		return true;
 	}
 	return false;
@@ -297,9 +307,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("sphereCenter", &sphere.center.x, 0.01f);
 
 
-		//ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
-		//ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
-		//plane.normal = Normalize(plane.normal);
 		ImGui::End();
 
 
@@ -314,7 +321,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+		if (IsCollision(aabb1, sphere)) {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
+		}
+		else {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+		}
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
 		///
 		/// ↑描画処理ここまで

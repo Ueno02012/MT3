@@ -1,6 +1,6 @@
 #include <Novice.h>
-#include<cmath>
-#include<assert.h>
+#include <cmath>
+#include <assert.h>
 #include "Matrix.h"
 #include "Matrix4x4.h"
 #include "Vector3.h"
@@ -8,7 +8,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <algorithm>
-#include<imgui.h>
+#include <imgui.h>
 
 static const int KRowHeight = 20;
 static const int Kcolumnwidth = 60;
@@ -21,9 +21,7 @@ struct Segment {
 	Vector3 diff;//!< 終点
 };
 
-
-struct AABB
-{
+struct AABB {
 	Vector3 min;//!<始点
 	Vector3 max;//!<終点
 };
@@ -64,25 +62,22 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 			Novice::DrawLine((int)startPointZ.x, (int)startPointZ.y, (int)endPointZ.x, (int)endPointZ.y, 0x6F6F6FFF);
 		}
 	}
-
 }
-static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
-{
+
+static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	const uint32_t kSubdivision = 12;							//分割数
 	const float kLatStep = (float)M_PI / kSubdivision;			//緯度のステップ
 	const float kLonStep = 2.0f * (float)M_PI / kSubdivision;	//経度のステップ
 
 	// 緯度のループ
-	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	{
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
 		float lat = -0.5f * (float)M_PI + latIndex * kLatStep;	//現在の緯度
 
 		//次の緯度
 		float nextLat = lat + kLatStep;
 
 		//経度のループ
-		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-		{
+		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
 			//現在の経度
 			float lon = lonIndex * kLonStep;
 
@@ -127,7 +122,7 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 ///カメラの位置
 ///
 Matrix4x4 LookAt(const Vector3& eye, const Vector3& target, const Vector3& up) {
-	Vector3 zaxis = Normalize(Subtract(target , eye));    // 前方向ベクトル
+	Vector3 zaxis = Normalize(Subtract(target, eye));    // 前方向ベクトル
 	Vector3 xaxis = Normalize(Cross(up, zaxis)); // 右方向ベクトル
 	Vector3 yaxis = Cross(zaxis, xaxis);        // 上方向ベクトル
 
@@ -147,9 +142,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-
 	Vector3 point{ -1.5f,0.6f,0.6f };
-
 
 	Sphere sphere[3]{};
 
@@ -162,16 +155,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sphere[2].radius = 0.1f;
 	sphere[2].center = { 0.5f,0.2f,0.0f };
 
-
-	Segment segment{ 
+	Segment segment{
 		.origin{-0.7f,0.3f,0.0f},
 		.diff{2.0f,-0.5f,0.0f}
 	};
 
 	Vector3 translates[3] = {
-	     {0.2f,1.0f,0.0f},
-	     {0.4f,0.0f,0.0f},
-	     {0.3f,0.0f,0.0f},
+		{0.2f,1.0f,0.0f},
+		{0.4f,0.0f,0.0f},
+		{0.3f,0.0f,0.0f},
 	};
 
 	Vector3 rotates[3] = {
@@ -198,8 +190,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int mouseY = 0;
 	bool IsDebugCameraActive = false;
 
-
-
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
@@ -213,37 +203,48 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		memcpy(preKeys, keys, 256);
 		Novice::GetHitKeyStateAll(keys);
 
-
 		///
 		/// ↓更新処理ここから
 		///
-				ImGui::Begin("Window");
-		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
-		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
+		ImGui::Begin("Window");
 
-		//ImGui::DragFloat3("translates[0]", , 0.01f);
+		ImGui::Text("parent");
+		ImGui::DragFloat3("Translate", &translates[0].x, 0.01f);
+		ImGui::DragFloat3("Rotate", &rotates[0].x, 0.01f);
+		ImGui::DragFloat3("Scale", &scales[0].x, 0.01f);
 
-		//ImGui::DragFloat3("arm", &sphere[1].center.x, 0.01f);
+		if (ImGui::TreeNode("Child 1")) {
+			ImGui::DragFloat3("Translate", &translates[1].x, 0.01f);
+			ImGui::DragFloat3("Rotate", &rotates[1].x, 0.01f);
+			ImGui::DragFloat3("Scale", &scales[1].x, 0.01f);
 
+			if (ImGui::TreeNode("Grandchild 1")) {
+				ImGui::DragFloat3("Translate", &translates[2].x, 0.01f);
+				ImGui::DragFloat3("Rotate", &rotates[2].x, 0.01f);
+				ImGui::DragFloat3("Scale", &scales[2].x, 0.01f);
+				ImGui::TreePop();
+			}
+
+			ImGui::TreePop();
+		}
+
+		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
 		ImGui::End();
 
 		Matrix4x4 papa = MakeAffineMatrix(scales[0], rotates[0], translates[0]);
 		Matrix4x4 child = Multiply(MakeAffineMatrix(scales[1], rotates[1], translates[1]), papa);
 		Matrix4x4 granChild = Multiply(MakeAffineMatrix(scales[2], rotates[2], translates[2]), child);
 
-
-
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
 		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
 
-		Matrix4x4 cameraMatrxi = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
-		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrxi);
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
+		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrix);
 
 		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
 		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
-
-		
 
 		Vector3 center1 = Transform(sphere[0].center, viewProjectionMatrix);
 		Vector3 center2 = Transform(sphere[1].center, viewProjectionMatrix);
@@ -253,20 +254,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 projectedCenter2 = Transform(center2, viewportMatrix);
 		Vector3 projectedCenter3 = Transform(center3, viewportMatrix);
 
-
-
-
-
-
-
 		/// ===デバックカメラ起動=== ///
 		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-			if (IsDebugCameraActive) {
-				IsDebugCameraActive = false;
-			}
-			else {
-				IsDebugCameraActive = true;
-			}
+			IsDebugCameraActive = !IsDebugCameraActive;
 		}
 
 		/// ===デバックカメラ起動=== ///
@@ -285,25 +275,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 				cameraRotate.x += deltaY * rotationSpeed;
 
 				// カメラの位置をターゲットポイントの周りに回転
-				float distance = Length(Subtract(cameraTranslate , cameraTarget.center));
+				float distance = Length(Subtract(cameraTranslate, cameraTarget.center));
 				Matrix4x4 rotationMatrix = MakeRotateMatrix(cameraRotate);
 				Vector3 offset = { 0.0f, 0.0f, -distance };
-				cameraTranslate = Add(cameraTarget.center , Transform(offset, rotationMatrix));
+				cameraTranslate = Add(cameraTarget.center, Transform(offset, rotationMatrix));
 			}
 
 			// マウスの位置を更新
 			lastMouseX = mouseX;
 			lastMouseY = mouseY;
 		}
-
-		
-
-		
-
-
-
-
-
 
 		///
 		/// ↑更新処理ここまで
@@ -313,7 +294,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓描画処理ここから
 		///
 
-
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
 		DrawSphere(sphere[0], viewProjectionMatrix, viewportMatrix, RED);
@@ -322,7 +302,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		Novice::DrawLine(int(projectedCenter1.x), int(projectedCenter1.y), int(projectedCenter2.x), int(projectedCenter2.y), WHITE);
 		Novice::DrawLine(int(projectedCenter2.x), int(projectedCenter2.y), int(projectedCenter3.x), int(projectedCenter3.y), WHITE);
-
 
 		///
 		/// ↑描画処理ここまで

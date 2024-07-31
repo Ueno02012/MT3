@@ -122,35 +122,6 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 		}
 	}
 }
-void DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2,
-	const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	const uint32_t segments = 100; // ベジエ曲線の分割数
-
-	// 始点をスクリーンに変換
-	Vector3 prevPoint = Transform(controlPoint0, viewProjectionMatrix);
-	prevPoint = Transform(prevPoint, viewportMatrix);
-
-	// 分割数に従ってベジエ曲線を描画
-	for (uint32_t i = 1; i <= segments; ++i) {
-		// 現在の分割位置を計算
-		float t = static_cast<float>(i) / segments;
-
-		// ベジエ曲線上の現在の点を計算
-		Vector3 point = QuadraticBezier(controlPoint0, controlPoint1, controlPoint2, t);
-
-		// 現在の点をクリップ空間の座標に変換
-		point = Transform(point, viewProjectionMatrix);
-
-		// クリップ空間の座標をビューポート空間の座標に変換
-		point = Transform(point, viewportMatrix);
-
-		// 始点から現在の点までの線を描画
-		Novice::DrawLine((int)prevPoint.x, (int)prevPoint.y, (int)point.x, (int)point.y, color);
-
-		// 現在の点を次のセグメントの始点として設定
-		prevPoint = point;
-	}
-}
 
 ///
 ///カメラの位置
@@ -197,6 +168,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		.diff{2.0f,-0.5f,0.0f}
 	};
 
+	Vector3 translates[3] = {
+	     {0.2f,1.0f,0.0f},
+	     {0.4f,0.0f,0.0f},
+	     {0.3f,0.0f,0.0f},
+	};
+
+	Vector3 rotates[3] = {
+		{0.0f,0.0f,-6.8f},
+		{0.0f,0.0f,-1.4f},
+		{0.0f,0.0f,0.0f},
+	};
+
+	Vector3 scales[3] = {
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f},
+		{1.0f,1.0f,1.0f}
+	};
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -209,9 +197,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int mouseX = 0;
 	int mouseY = 0;
 	bool IsDebugCameraActive = false;
-
-	
-
 
 
 
@@ -244,10 +229,15 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
+		
 
+		Vector3 center1 = Transform(sphere[0].center, viewProjectionMatrix);
+		Vector3 center2 = Transform(sphere[1].center, viewProjectionMatrix);
+		Vector3 center3 = Transform(sphere[2].center, viewProjectionMatrix);
 
-		Vector3 start = Transform(Transform(sphere[0].center, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(Add(sphere[0].center, sphere[1].center), viewProjectionMatrix), viewportMatrix);
+		Vector3 projectedCenter1 = Transform(center1, viewportMatrix);
+		Vector3 projectedCenter2 = Transform(center2, viewportMatrix);
+		Vector3 projectedCenter3 = Transform(center3, viewportMatrix);
 
 
 		/// ===デバックカメラ起動=== ///
@@ -293,8 +283,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 
+		//ImGui::DragFloat3("translates[0]", , 0.01f);
+
+		//ImGui::DragFloat3("arm", &sphere[1].center.x, 0.01f);
 
 		ImGui::End();
 
@@ -314,7 +306,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawSphere(sphere[1], viewProjectionMatrix, viewportMatrix, GREEN);
 		DrawSphere(sphere[2], viewProjectionMatrix, viewportMatrix, BLUE);
 
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		Novice::DrawLine(int(projectedCenter1.x), int(projectedCenter1.y), int(projectedCenter2.x), int(projectedCenter2.y), WHITE);
+		Novice::DrawLine(int(projectedCenter2.x), int(projectedCenter2.y), int(projectedCenter3.x), int(projectedCenter3.y), WHITE);
+
 
 		///
 		/// ↑描画処理ここまで

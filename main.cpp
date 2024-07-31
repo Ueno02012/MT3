@@ -111,6 +111,12 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 	Novice::DrawLine(int(vertexces[6].x), int(vertexces[6].y), int(vertexces[7].x), int(vertexces[7].y), color);
 	Novice::DrawLine(int(vertexces[7].x), int(vertexces[7].y), int(vertexces[4].x), int(vertexces[4].y), color);
 
+	Novice::DrawLine(int(vertexces[0].x), int(vertexces[0].y), int(vertexces[4].x), int(vertexces[4].y), color);
+	Novice::DrawLine(int(vertexces[1].x), int(vertexces[1].y), int(vertexces[5].x), int(vertexces[5].y), color);
+	Novice::DrawLine(int(vertexces[2].x), int(vertexces[2].y), int(vertexces[6].x), int(vertexces[6].y), color);
+	Novice::DrawLine(int(vertexces[3].x), int(vertexces[3].y), int(vertexces[7].x), int(vertexces[7].y), color);
+
+
 }
 
 ///
@@ -214,10 +220,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		//Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		//Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
-		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
-
 		
 
 		/// ===デバックカメラ起動=== ///
@@ -284,13 +286,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-
-		//if (IsCollision(triangle,segment)) {
-		//	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);//当たったら赤
-		//}
-		//else {
-		//	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);//何もないとき白
-		//}
 
 		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix,WHITE);
 		///

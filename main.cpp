@@ -122,6 +122,35 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 		}
 	}
 }
+void DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2,
+	const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
+	const uint32_t segments = 100; // ベジエ曲線の分割数
+
+	// 始点をスクリーンに変換
+	Vector3 prevPoint = Transform(controlPoint0, viewProjectionMatrix);
+	prevPoint = Transform(prevPoint, viewportMatrix);
+
+	// 分割数に従ってベジエ曲線を描画
+	for (uint32_t i = 1; i <= segments; ++i) {
+		// 現在の分割位置を計算
+		float t = static_cast<float>(i) / segments;
+
+		// ベジエ曲線上の現在の点を計算
+		Vector3 point = QuadraticBezier(controlPoint0, controlPoint1, controlPoint2, t);
+
+		// 現在の点をクリップ空間の座標に変換
+		point = Transform(point, viewProjectionMatrix);
+
+		// クリップ空間の座標をビューポート空間の座標に変換
+		point = Transform(point, viewportMatrix);
+
+		// 始点から現在の点までの線を描画
+		Novice::DrawLine((int)prevPoint.x, (int)prevPoint.y, (int)point.x, (int)point.y, color);
+
+		// 現在の点を次のセグメントの始点として設定
+		prevPoint = point;
+	}
+}
 
 ///
 ///カメラの位置

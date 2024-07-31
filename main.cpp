@@ -83,8 +83,15 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-//bool IsCollision(const Triangle& triangle, const Segment& segment) {
-//}
+bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
+	if((aabb1.min.x<=aabb2.max.x && aabb1.max.x>=aabb2.min.x)&&
+		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
+		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z) {
+
+		return true
+	}
+	return false
+}
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 vertexces[8] = {
 		{aabb.min.x,aabb.min.y,aabb.min.z},// 0 手前の左下の点
@@ -149,7 +156,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
 
-	Segment segment{ {-1.0f,-1.0f,0.0f},-1.0f,0.0f,3.0f };
+	//Segment segment{ {-1.0f,-1.0f,0.0f},-1.0f,0.0f,3.0f };
 
 	Triangle triangle;
 	triangle.vertices[0] = { 0.0f,1.0f,1.0f };
@@ -180,14 +187,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		.max{1.0f,1.0f,1.0f},
 	};
 
-	aabb1.min.x = aabb1.min.x,aabb1.max.x;
-	aabb1.max.x = aabb1.min.x, aabb1.max.x;
+	//aabb1.min.x = aabb1.min.x,aabb1.max.x;
+	//aabb1.max.x = aabb1.min.x, aabb1.max.x;
 
-	aabb1.min.y = aabb1.min.y, aabb1.max.y;
-	aabb1.max.y = aabb1.min.y, aabb1.max.y;
+	//aabb1.min.y = aabb1.min.y, aabb1.max.y;
+	//aabb1.max.y = aabb1.min.y, aabb1.max.y;
 
-	aabb1.min.z = aabb1.min.z, aabb1.max.z;
-	aabb1.max.z = aabb1.min.z, aabb1.max.z;
+	//aabb1.min.z = aabb1.min.z, aabb1.max.z;
+	//aabb1.max.z = aabb1.min.z, aabb1.max.z;
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -265,8 +272,13 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		//ImGui::DragFloat("radius", &sphere.radius, 0.01f);
-		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
+		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
+		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
+
+		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.01f);
+		ImGui::DragFloat3("aabb2.max", &aabb2.max.x, 0.01f);
+
+		//ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 		//ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
 		//plane.normal = Normalize(plane.normal);
 		ImGui::End();
@@ -288,6 +300,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
 		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix,WHITE);
+		DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, WHITE);
+
 		///
 		/// ↑描画処理ここまで
 		///

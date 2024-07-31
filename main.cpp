@@ -217,6 +217,20 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
+				ImGui::Begin("Window");
+		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
+		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
+
+		//ImGui::DragFloat3("translates[0]", , 0.01f);
+
+		//ImGui::DragFloat3("arm", &sphere[1].center.x, 0.01f);
+
+		ImGui::End();
+
+		Matrix4x4 papa = MakeAffineMatrix(scales[0], rotates[0], translates[0]);
+		Matrix4x4 child = Multiply(MakeAffineMatrix(scales[1], rotates[1], translates[1]), papa);
+		Matrix4x4 granChild = Multiply(MakeAffineMatrix(scales[2], rotates[2], translates[2]), child);
+
 
 
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
@@ -238,6 +252,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 projectedCenter1 = Transform(center1, viewportMatrix);
 		Vector3 projectedCenter2 = Transform(center2, viewportMatrix);
 		Vector3 projectedCenter3 = Transform(center3, viewportMatrix);
+
+
+
+
+
 
 
 		/// ===デバックカメラ起動=== ///
@@ -280,15 +299,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 
 		
-		ImGui::Begin("Window");
-		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
-		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 
-		//ImGui::DragFloat3("translates[0]", , 0.01f);
 
-		//ImGui::DragFloat3("arm", &sphere[1].center.x, 0.01f);
 
-		ImGui::End();
+
 
 
 		///

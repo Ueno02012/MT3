@@ -16,6 +16,10 @@ static const int Kcolumnwidth = 60;
 static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
 
+struct Segment {
+	Vector3 origin;//!< 始点
+	Vector3 diff;//!< 終点
+};
 
 
 struct AABB
@@ -306,7 +310,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
-		ImGui::DragFloat3("sphereCenter", &sphere.center.x, 0.01f);
 
 
 		ImGui::End();
@@ -323,13 +326,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		if (IsCollision(aabb1, sphere)) {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
-		}
-		else {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
-		}
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+
 		///
 		/// ↑描画処理ここまで
 		///

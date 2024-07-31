@@ -186,14 +186,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		.max{1.0f,1.0f,1.0f},
 	};
 
-	//aabb1.min.x = aabb1.min.x,aabb1.max.x;
-	//aabb1.max.x = aabb1.min.x, aabb1.max.x;
-
-	//aabb1.min.y = aabb1.min.y, aabb1.max.y;
-	//aabb1.max.y = aabb1.min.y, aabb1.max.y;
-
-	//aabb1.min.z = aabb1.min.z, aabb1.max.z;
-	//aabb1.max.z = aabb1.min.z, aabb1.max.z;
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -290,10 +282,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-
-
-
-
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画

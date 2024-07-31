@@ -66,22 +66,64 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-bool IsCollision(const AABB& aabb, const Sphere& sphere) {
-	//　最近接点を求める
-	Vector3 closestPoint{ 
-		std::clamp(sphere.center.x,aabb.min.x,aabb.max.x),
-		std::clamp(sphere.center.y,aabb.min.y,aabb.max.y),
-		std::clamp(sphere.center.z,aabb.min.z,aabb.max.z),
-	};
-	// 最近接点と弾の中心との距離を求める
-	float distance = Length(Subtract(closestPoint, sphere.center));
+//当たり判定
+bool IsCollision(const AABB& aabb, const Segment& segment) {
+	Vector3 seg1 = segment.origin;
+	Vector3 seg2 = Add(segment.origin, segment.diff);
 
-	// 距離が半径よりも小さければ衝突
-	if (distance <= sphere.radius) {
-		// 衝突
-		return true;
+	float tMin = 0.0f;
+	float tMax = 1.0f;
+
+	// X軸方向での判定
+	if (std::abs(segment.diff.x) < 1e-8) {
+		if (seg1.x < aabb.min.x || seg1.x > aabb.max.x) {
+			return false;
+		}
 	}
-	return false;
+	else {
+		float od = 1.0f / segment.diff.x;
+		float t1 = (aabb.min.x - seg1.x) * od;
+		float t2 = (aabb.max.x - seg1.x) * od;
+		if (t1 > t2) std::swap(t1, t2);
+		if (t1 > tMin) tMin = t1; // tMin = std::max(tMin, t1);
+		if (t2 < tMax) tMax = t2; // tMax = std::min(tMax, t2);
+		if (tMin > tMax) return false;
+	}
+
+	// Y軸方向での判定
+	if (std::abs(segment.diff.y) < 1e-8) {
+		if (seg1.y < aabb.min.y || seg1.y > aabb.max.y) {
+			return false;
+		}
+	}
+	else {
+		float od = 1.0f / segment.diff.y;
+		float t1 = (aabb.min.y - seg1.y) * od;
+		float t2 = (aabb.max.y - seg1.y) * od;
+		if (t1 > t2) std::swap(t1, t2);
+		if (t1 > tMin) tMin = t1; // tMin = std::max(tMin, t1);
+		if (t2 < tMax) tMax = t2; // tMax = std::min(tMax, t2);
+		if (tMin > tMax) return false;
+	}
+
+	// Z軸方向での判定
+	if (std::abs(segment.diff.z) < 1e-8) {
+		if (seg1.z < aabb.min.z || seg1.z > aabb.max.z) {
+			return false;
+		}
+	}
+	else {
+		float od = 1.0f / segment.diff.z;
+		float t1 = (aabb.min.z - seg1.z) * od;
+		float t2 = (aabb.max.z - seg1.z) * od;
+		if (t1 > t2) std::swap(t1, t2);
+		if (t1 > tMin) tMin = t1; // tMin = std::max(tMin, t1);
+		if (t2 < tMax) tMax = t2; // tMax = std::min(tMax, t2);
+		if (tMin > tMax) return false;
+	}
+
+	// すべての軸方向での判定を通過した場合、衝突している
+	return true;
 }
 
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
@@ -142,17 +184,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	//Vector3 camaraTranslate = { 0.0f,1.9f,-6.49f };
-	//Vector3 cameraRotate = { 0.26f,0.0f,0.0f };
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-	//Sphere sphere{};
+	AABB aabb1{
+	.min{-0.5f,-0.5f,-0.5f},
+	.max{0.0f,0.0f,0.0f},
+	};
 
-	//sphere.radius = 0.5f;
-	//sphere.center.x = 1.0f;
 
-	Segment segment{ {-1.0f,-1.0f,0.0f},-1.0f,0.0f,3.0f };
+	Segment segment{ 
+		.origin{-0.7f,0.3f,0.0f},
+		.diff{2.0f,-0.5f,0.0f}
+	};
 
 
 	// カメラ行列
@@ -168,10 +212,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool IsDebugCameraActive = false;
 
 	
-	AABB aabb1{
-		.min{-0.5f,-0.5f,-0.5f},
-		.max{0.0f,0.0f,0.0f},
-	};
 
 
 
@@ -256,7 +296,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
-		ImGui::DragFloat3("segment", &segment.diff.x, 0.01f);
+		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 
 
 		ImGui::End();
@@ -272,8 +312,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-
-		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+		if (IsCollision(aabb1, segment)) {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
+		}
+		else {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+		}
 		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 		///

@@ -83,8 +83,8 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 	}
 
 }
-bool IsCollision(const Triangle& triangle, const Segment& segment) {
-}
+//bool IsCollision(const Triangle& triangle, const Segment& segment) {
+//}
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 vertexces[8] = {
 		{aabb.min.x,aabb.min.y,aabb.min.z},// 0 手前の左下の点
@@ -101,7 +101,15 @@ void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Mat
 	for (int32_t index = 0; index < 8; ++index) {
 		vertexces[index] = Transform(Transform(vertexces[index], viewProjectionMatrix), viewportMatrix);
 	}
+	Novice::DrawLine(int(vertexces[0].x), int(vertexces[0].y), int(vertexces[1].x), int(vertexces[1].y), color);
+	Novice::DrawLine(int(vertexces[1].x), int(vertexces[1].y), int(vertexces[2].x), int(vertexces[2].y), color);
+	Novice::DrawLine(int(vertexces[2].x), int(vertexces[2].y), int(vertexces[3].x), int(vertexces[3].y), color);
+	Novice::DrawLine(int(vertexces[3].x), int(vertexces[3].y), int(vertexces[0].x), int(vertexces[0].y), color);
 
+	Novice::DrawLine(int(vertexces[4].x), int(vertexces[4].y), int(vertexces[5].x), int(vertexces[5].y), color);
+	Novice::DrawLine(int(vertexces[5].x), int(vertexces[5].y), int(vertexces[6].x), int(vertexces[6].y), color);
+	Novice::DrawLine(int(vertexces[6].x), int(vertexces[6].y), int(vertexces[7].x), int(vertexces[7].y), color);
+	Novice::DrawLine(int(vertexces[7].x), int(vertexces[7].y), int(vertexces[4].x), int(vertexces[4].y), color);
 
 }
 
@@ -206,9 +214,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
-		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
+		//Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		//Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+		//Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 		
 
@@ -277,14 +285,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		if (IsCollision(triangle,segment)) {
-			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);//当たったら赤
-		}
-		else {
-			Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);//何もないとき白
-		}
+		//if (IsCollision(triangle,segment)) {
+		//	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), RED);//当たったら赤
+		//}
+		//else {
+		//	Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);//何もないとき白
+		//}
 
-
+		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix,WHITE);
 		///
 		/// ↑描画処理ここまで
 		///

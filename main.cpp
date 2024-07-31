@@ -217,8 +217,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
-		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+		Vector3 start = Transform(Transform(sphere[0].center, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(Add(sphere[0].center, sphere[1].center), viewProjectionMatrix), viewportMatrix);
 
 
 		/// ===デバックカメラ起動=== ///
@@ -284,6 +284,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawSphere(sphere[0], viewProjectionMatrix, viewportMatrix, RED);
 		DrawSphere(sphere[1], viewProjectionMatrix, viewportMatrix, GREEN);
 		DrawSphere(sphere[2], viewProjectionMatrix, viewportMatrix, BLUE);
+
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 		///
 		/// ↑描画処理ここまで

@@ -16,28 +16,6 @@ static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
 
 
-struct Line {
-	Vector3 origin;//!< 始点
-	Vector3 diff;//!< 終点への差分ベクトル
-};
-
-struct Ray {
-	Vector3 origin;//!< 始点
-	Vector3 diff;//!< 終点への差分ベクトル
-};
-
-struct Plane {
-	Vector3 normal;
-	float distance;
-};
-
-struct Segment {
-	Vector3 origin;//!< 始点
-	Vector3 diff;//!< 終点
-};
-struct Triangle {
-	Vector3 vertices[3];//!<頂点
-};
 
 struct AABB
 {
@@ -91,6 +69,63 @@ bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	}
 	return false;
 }
+static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
+{
+	const uint32_t kSubdivision = 12;							//分割数
+	const float kLatStep = (float)M_PI / kSubdivision;			//緯度のステップ
+	const float kLonStep = 2.0f * (float)M_PI / kSubdivision;	//経度のステップ
+
+	// 緯度のループ
+	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
+	{
+		float lat = -0.5f * (float)M_PI + latIndex * kLatStep;	//現在の緯度
+
+		//次の緯度
+		float nextLat = lat + kLatStep;
+
+		//経度のループ
+		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
+		{
+			//現在の経度
+			float lon = lonIndex * kLonStep;
+
+			//次の経度
+			float nextLon = lon + kLonStep;
+
+			// 球面座標の計算
+			Vector3 pointA
+			{
+				sphere.center.x + sphere.radius * cos(lat) * cos(lon),
+				sphere.center.y + sphere.radius * sin(lat),
+				sphere.center.z + sphere.radius * cos(lat) * sin(lon)
+			};
+
+			Vector3 pointB
+			{
+				sphere.center.x + sphere.radius * cos(nextLat) * cos(lon),
+				sphere.center.y + sphere.radius * sin(nextLat),
+				sphere.center.z + sphere.radius * cos(nextLat) * sin(lon)
+			};
+
+			Vector3 pointC
+			{
+				sphere.center.x + sphere.radius * cos(lat) * cos(nextLon),
+				sphere.center.y + sphere.radius * sin(lat),
+				sphere.center.z + sphere.radius * cos(lat) * sin(nextLon)
+			};
+
+			// スクリーン座標に変換
+			pointA = Transform(pointA, Multiply(viewProjectionMatrix, viewportMatrix));
+			pointB = Transform(pointB, Multiply(viewProjectionMatrix, viewportMatrix));
+			pointC = Transform(pointC, Multiply(viewProjectionMatrix, viewportMatrix));
+
+			// 線分の描画
+			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointB.x, (int)pointB.y, color);
+			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointC.x, (int)pointC.y, color);
+		}
+	}
+}
+
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 vertexces[8] = {
 		{aabb.min.x,aabb.min.y,aabb.min.z},// 0 手前の左下の点
@@ -157,10 +192,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	//Segment segment{ {-1.0f,-1.0f,0.0f},-1.0f,0.0f,3.0f };
 
-	Triangle triangle;
-	triangle.vertices[0] = { 0.0f,1.0f,1.0f };
-	triangle.vertices[1] = { 1.0f,-1.0f,1.0f };
-	triangle.vertices[2] = { -1.0f,-1.0f,0.0f };
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -181,10 +212,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	};
 
 
-	AABB aabb2{
-		.min{0.2f,0.2f,0.2f},
-		.max{1.0f,1.0f,1.0f},
-	};
 
 
 	// キー入力結果を受け取る箱
@@ -266,8 +293,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
 
-		ImGui::DragFloat3("aabb2.min", &aabb2.min.x, 0.01f);
-		ImGui::DragFloat3("aabb2.max", &aabb2.max.x, 0.01f);
 
 		//ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 		//ImGui::DragFloat3("Plane", &plane.normal.x, 0.01f);
@@ -286,14 +311,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		if (IsCollision(aabb1, aabb2)) {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
-			DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, RED);
-		}
-		else {
-			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
-			DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, WHITE);
-		}
+		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

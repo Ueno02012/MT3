@@ -189,8 +189,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
+	Sphere sphere{};
 
-	//Segment segment{ {-1.0f,-1.0f,0.0f},-1.0f,0.0f,3.0f };
+	sphere.radius = 0.5f;
+	sphere.center.x = 1.0f;
 
 
 	// カメラ行列
@@ -292,6 +294,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
+		ImGui::DragFloat3("sphereCenter", &sphere.center.x, 0.01f);
 
 
 		//ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
@@ -312,7 +315,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
 		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
-
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
 		///
 		/// ↑描画処理ここまで
 		///

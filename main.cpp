@@ -67,55 +67,6 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 
 }
 
- Vector3 Lerp(const Vector3& v1, const Vector3& v2, float t) {
-	 return Vector3(
-		 { v1.x + (v2.x - v1.x) * t },
-		 { v1.y + (v2.y - v1.y) * t },
-		 { v1.z + (v2.z - v1.z) * t }
-	);
-}
- // ベジエ曲線上の点を計算する関数
- Vector3 QuadraticBezier(const Vector3& P0, const Vector3& P1, const Vector3& P2, float t) {
-	 Vector3 a = Lerp(P0, P1, t);
-	 Vector3 b = Lerp(P1, P2, t);
-	 return Lerp(a, b, t);
- }
-
-
- // クリップ空間の座標をビューポート空間の座標に変換する関数（簡易的な実装）
- Vector3 ViewportTransform(const Vector3& v, const Matrix4x4& viewportMatrix) {
-	 return Transform(v, viewportMatrix);
- }
-
- void DrawBezier(const Vector3& controlPoint0, const Vector3& controlPoint1, const Vector3& controlPoint2,
-	 const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-
-	 // ベジエ曲線の分割数を設定
-	 const uint32_t segments = 100;
-
-	 // 始点をスクリーンに変換
-	 Vector3 prevPoint = Transform(controlPoint0, viewProjectionMatrix);
-	 prevPoint = ViewportTransform(prevPoint, viewportMatrix);
-
-	 // 分割数に従ってベジエ曲線を描画
-	 for (uint32_t i = 1; i <= segments; ++i) {
-		 // 現在の分割位置を計算
-		 float t = static_cast<float>(i) / segments;
-
-		 // ベジエ曲線上の現在の点を計算
-		 Vector3 point = QuadraticBezier(controlPoint0, controlPoint1, controlPoint2, t);
-
-		 // 現在の点をクリップ空間の座標に変換
-		 point = Transform(point, viewProjectionMatrix);
-
-		 // クリップ空間の座標をビューポート空間の座標に変換
-		 point = ViewportTransform(point, viewportMatrix);
-
-		 Novice::DrawLine(int(prevPoint.x), int(prevPoint.y), int(point.x), int(point.y), color);
-		 
-		 prevPoint = point;
-	 }
- }
 ///
 ///カメラの位置
 ///
@@ -143,10 +94,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
-	Vector3 P0 = { 0, 0, 0 };
-	Vector3 P1 = { 1, 2, 0 };
-	Vector3 P2 = { 2, 0, 0 };
-	Vector3 P3 = { 3, 2, 0 };
 
 	//float t = 0.5f;
 
@@ -155,11 +102,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		.diff{2.0f,-0.5f,0.0f}
 	};
 
-	Vector3 controlPoints[3] = {
-		{-0.8f,0.58f,1.0f},
-		{1.76f,1.0f,-0.3f},
-		{0.94f,-0.7f,2.3f},
-	};
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -256,9 +198,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::Begin("Window");
 		ImGui::DragFloat3("camaraTranslate", &cameraTranslate.x, 0.01f);
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
-		ImGui::DragFloat3("controlPoints[0]", &controlPoints[0].x, 0.01f);
-		ImGui::DragFloat3("controlPoints[1]", &controlPoints[1].x, 0.01f);
-		ImGui::DragFloat3("controlPoints[2]", &controlPoints[2].x, 0.01f);
 		ImGui::DragFloat3("segment", &segment.origin.x, 0.01f);
 
 
@@ -275,7 +214,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-		DrawBezier(controlPoints[0], controlPoints[1], controlPoints[2], viewProjectionMatrix, viewportMatrix, BLUE);
 
 		///
 		/// ↑描画処理ここまで

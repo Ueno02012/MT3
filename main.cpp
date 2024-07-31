@@ -83,62 +83,6 @@ bool IsCollision(const AABB& aabb, const Sphere& sphere) {
 	}
 	return false;
 }
-static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color)
-{
-	const uint32_t kSubdivision = 12;							//分割数
-	const float kLatStep = (float)M_PI / kSubdivision;			//緯度のステップ
-	const float kLonStep = 2.0f * (float)M_PI / kSubdivision;	//経度のステップ
-
-	// 緯度のループ
-	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex)
-	{
-		float lat = -0.5f * (float)M_PI + latIndex * kLatStep;	//現在の緯度
-
-		//次の緯度
-		float nextLat = lat + kLatStep;
-
-		//経度のループ
-		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex)
-		{
-			//現在の経度
-			float lon = lonIndex * kLonStep;
-
-			//次の経度
-			float nextLon = lon + kLonStep;
-
-			// 球面座標の計算
-			Vector3 pointA
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(lon)
-			};
-
-			Vector3 pointB
-			{
-				sphere.center.x + sphere.radius * cos(nextLat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(nextLat),
-				sphere.center.z + sphere.radius * cos(nextLat) * sin(lon)
-			};
-
-			Vector3 pointC
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(nextLon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(nextLon)
-			};
-
-			// スクリーン座標に変換
-			pointA = Transform(pointA, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointB = Transform(pointB, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointC = Transform(pointC, Multiply(viewProjectionMatrix, viewportMatrix));
-
-			// 線分の描画
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointB.x, (int)pointB.y, color);
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointC.x, (int)pointC.y, color);
-		}
-	}
-}
 
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 vertexces[8] = {
@@ -263,7 +207,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 
-		
+		Vector3 start = Transform(Transform(segment.origin, viewProjectionMatrix), viewportMatrix);
+		Vector3 end = Transform(Transform(Add(segment.origin, segment.diff), viewProjectionMatrix), viewportMatrix);
+
 
 		/// ===デバックカメラ起動=== ///
 		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
@@ -310,6 +256,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("camaraRotate", &cameraRotate.x, 0.01f);
 		ImGui::DragFloat3("aabb1.min", &aabb1.min.x, 0.01f);
 		ImGui::DragFloat3("aabb1.max", &aabb1.max.x, 0.01f);
+		ImGui::DragFloat3("segment", &segment.diff.x, 0.01f);
 
 
 		ImGui::End();
@@ -327,6 +274,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
 		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+		Novice::DrawLine(int(start.x), int(start.y), int(end.x), int(end.y), WHITE);
 
 		///
 		/// ↑描画処理ここまで

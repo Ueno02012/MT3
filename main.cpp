@@ -86,11 +86,10 @@ void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMa
 bool IsCollision(const AABB& aabb1, const AABB& aabb2) {
 	if((aabb1.min.x<=aabb2.max.x && aabb1.max.x>=aabb2.min.x)&&
 		(aabb1.min.y <= aabb2.max.y && aabb1.max.y >= aabb2.min.y) &&
-		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z) {
-
-		return true
+		(aabb1.min.z <= aabb2.max.z && aabb1.max.z >= aabb2.min.z)) {
+		return true;
 	}
-	return false
+	return false;
 }
 void DrawAABB(const AABB& aabb, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 vertexces[8] = {
@@ -299,8 +298,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
 
-		DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix,WHITE);
-		DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, WHITE);
+		if (IsCollision(aabb1, aabb2)) {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, RED);
+			DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, RED);
+		}
+		else {
+			DrawAABB(aabb1, viewProjectionMatrix, viewportMatrix, WHITE);
+			DrawAABB(aabb2, viewProjectionMatrix, viewportMatrix, WHITE);
+		}
 
 		///
 		/// ↑描画処理ここまで

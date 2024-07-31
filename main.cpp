@@ -151,7 +151,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	Vector3 point{ -1.5f,0.6f,0.6f };
 
 
-	//float t = 0.5f;
+	Sphere sphere[3]{};
+
+	sphere[0].radius = 0.1f;
+	sphere[0].center = { 0.2f,0.8f,0.0f };
+
+	sphere[1].radius = 0.1f;
+	sphere[1].center = { 0.7f,0.5f,0.0f };
+
+	sphere[2].radius = 0.1f;
+	sphere[2].center = { 0.5f,0.2f,0.0f };
+
 
 	Segment segment{ 
 		.origin{-0.7f,0.3f,0.0f},
@@ -270,6 +280,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
+
+		DrawSphere(sphere[0], viewProjectionMatrix, viewportMatrix, RED);
+		DrawSphere(sphere[1], viewProjectionMatrix, viewportMatrix, GREEN);
+		DrawSphere(sphere[2], viewProjectionMatrix, viewportMatrix, BLUE);
 
 		///
 		/// ↑描画処理ここまで

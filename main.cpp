@@ -190,6 +190,21 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	int mouseY = 0;
 	bool IsDebugCameraActive = false;
 
+
+
+
+
+	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
+	Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
+
+	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
+	Matrix4x4 viewCameraMatrix = Inverse(cameraMatrix);
+
+	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+	Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
+	Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
+
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
 	char preKeys[256] = { 0 };
@@ -232,19 +247,23 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
 		ImGui::End();
 
-		Matrix4x4 papa = MakeAffineMatrix(scales[0], rotates[0], translates[0]);
-		Matrix4x4 child = Multiply(MakeAffineMatrix(scales[1], rotates[1], translates[1]), papa);
-		Matrix4x4 granChild = Multiply(MakeAffineMatrix(scales[2], rotates[2], translates[2]), child);
+		Matrix4x4 parentWorldMatrix = MakeAffineMatrix(scales[0], rotates[0], translates[0]);
+		Matrix4x4 childWorldMatrix = Multiply(MakeAffineMatrix(scales[1], rotates[1], translates[1]), parentWorldMatrix);
+		Matrix4x4 granChildWorldMatrix = Multiply(MakeAffineMatrix(scales[2], rotates[2], translates[2]), childWorldMatrix);
 
-		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
-		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
+		sphere[0].center.x = parentWorldMatrix.m[3][0];
+		sphere[0].center.y = parentWorldMatrix.m[3][1];
+		sphere[0].center.z = parentWorldMatrix.m[3][2];
 
-		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
-		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrix);
+		sphere[1].center.x = childWorldMatrix.m[3][0];
+		sphere[1].center.y = childWorldMatrix.m[3][1];
+		sphere[1].center.z = childWorldMatrix.m[3][2];
 
-		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
-		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+		sphere[2].center.x = granChildWorldMatrix.m[3][0];
+		sphere[2].center.y = granChildWorldMatrix.m[3][1];
+		sphere[2].center.z = granChildWorldMatrix.m[3][2];
+
+
 
 		Vector3 center1 = Transform(sphere[0].center, viewProjectionMatrix);
 		Vector3 center2 = Transform(sphere[1].center, viewProjectionMatrix);
@@ -253,6 +272,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Vector3 projectedCenter1 = Transform(center1, viewportMatrix);
 		Vector3 projectedCenter2 = Transform(center2, viewportMatrix);
 		Vector3 projectedCenter3 = Transform(center3, viewportMatrix);
+
+
 
 		/// ===デバックカメラ起動=== ///
 		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {

@@ -21,7 +21,7 @@ Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
 
 };
 
-Vector3 vMultiply(float v1, const Vector3& v2) {
+Vector3 Multiply(float v1, const Vector3& v2) {
 	Vector3 result;
 
 	result.x = v1 * v2.x;
@@ -118,33 +118,6 @@ Matrix4x4 Multiply(const Matrix4x4 m1, const Matrix4x4 m2) {
 	return result;
 };
 
-//// 2.拡大縮小行列
-//static Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
-//	Matrix4x4 result{};
-//	result.m[0][0] = scale.x;
-//	result.m[1][1] = scale.y;
-//	result.m[2][2] = scale.z;
-//	result.m[3][3] = 1.0f;
-//	return result;
-//}
-//// 1.平行移動行列
-//static Matrix4x4 MakeTranslataMatrix(const Vector3& translate) {
-//	Matrix4x4 result{};
-//	for (int i = 0; i < 4; i++) {
-//		for (int j = 0; j < 4; j++) {
-//			if (i == j) {
-//				result.m[i][j] = 1.0f;
-//			}
-//			else {
-//				result.m[i][j] = 0.0f;
-//			}
-//		}
-//	}
-//	result.m[3][0] = translate.x;
-//	result.m[3][1] = translate.y;
-//	result.m[3][2] = translate.z;
-//	return result;
-//}
 
 //5.3次元アフィン変換
 Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {

@@ -28,113 +28,6 @@ struct AABB {
 
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
-void DrawGrid(const Matrix4x4& viewProiectionMatrix, const Matrix4x4& ViewportMatrix) {
-	const float KGridHalfwidth = 2.0f;
-	const uint32_t KSubdivision = 10;
-	const float KGridEvery = (KGridHalfwidth * 2.0f) / float(KSubdivision);
-
-	for (uint32_t xIndex = 0; xIndex <= KSubdivision; xIndex++) {
-		float posX = -KGridHalfwidth + xIndex * KGridEvery;
-
-		Vector3 startPointX(posX, 0.0f, -KGridHalfwidth);
-		Vector3 endPointX(posX, 0.0f, KGridHalfwidth);
-
-		startPointX = Transform(startPointX, Multiply(viewProiectionMatrix, ViewportMatrix));
-		endPointX = Transform(endPointX, Multiply(viewProiectionMatrix, ViewportMatrix));
-		if (xIndex == 5) {
-			Novice::DrawLine((int)startPointX.x, (int)startPointX.y, (int)endPointX.x, (int)endPointX.y, BLACK);
-		}
-		else {
-			Novice::DrawLine((int)startPointX.x, (int)startPointX.y, (int)endPointX.x, (int)endPointX.y, 0x6F6F6FFF);
-		}
-	}
-	for (uint32_t zIndex = 0; zIndex <= KSubdivision; zIndex++) {
-		float posZ = -KGridHalfwidth + KGridEvery * zIndex;
-
-		Vector3 startPointZ = { -KGridHalfwidth, 0.0f, posZ };
-		Vector3 endPointZ = { KGridHalfwidth, 0.0f, posZ };
-		startPointZ = Transform(startPointZ, Multiply(viewProiectionMatrix, ViewportMatrix));
-		endPointZ = Transform(endPointZ, Multiply(viewProiectionMatrix, ViewportMatrix));
-		if (zIndex == 5) {
-			Novice::DrawLine((int)startPointZ.x, (int)startPointZ.y, (int)endPointZ.x, (int)endPointZ.y, BLACK);
-		}
-		else {
-			Novice::DrawLine((int)startPointZ.x, (int)startPointZ.y, (int)endPointZ.x, (int)endPointZ.y, 0x6F6F6FFF);
-		}
-	}
-}
-
-static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	const uint32_t kSubdivision = 12;							//分割数
-	const float kLatStep = (float)M_PI / kSubdivision;			//緯度のステップ
-	const float kLonStep = 2.0f * (float)M_PI / kSubdivision;	//経度のステップ
-
-	// 緯度のループ
-	for (uint32_t latIndex = 0; latIndex < kSubdivision; ++latIndex) {
-		float lat = -0.5f * (float)M_PI + latIndex * kLatStep;	//現在の緯度
-
-		//次の緯度
-		float nextLat = lat + kLatStep;
-
-		//経度のループ
-		for (uint32_t lonIndex = 0; lonIndex < kSubdivision; ++lonIndex) {
-			//現在の経度
-			float lon = lonIndex * kLonStep;
-
-			//次の経度
-			float nextLon = lon + kLonStep;
-
-			// 球面座標の計算
-			Vector3 pointA
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(lon)
-			};
-
-			Vector3 pointB
-			{
-				sphere.center.x + sphere.radius * cos(nextLat) * cos(lon),
-				sphere.center.y + sphere.radius * sin(nextLat),
-				sphere.center.z + sphere.radius * cos(nextLat) * sin(lon)
-			};
-
-			Vector3 pointC
-			{
-				sphere.center.x + sphere.radius * cos(lat) * cos(nextLon),
-				sphere.center.y + sphere.radius * sin(lat),
-				sphere.center.z + sphere.radius * cos(lat) * sin(nextLon)
-			};
-
-			// スクリーン座標に変換
-			pointA = Transform(pointA, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointB = Transform(pointB, Multiply(viewProjectionMatrix, viewportMatrix));
-			pointC = Transform(pointC, Multiply(viewProjectionMatrix, viewportMatrix));
-
-			// 線分の描画
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointB.x, (int)pointB.y, color);
-			Novice::DrawLine((int)pointA.x, (int)pointA.y, (int)pointC.x, (int)pointC.y, color);
-		}
-	}
-}
-
-///
-///カメラの位置
-///
-Matrix4x4 LookAt(const Vector3& eye, const Vector3& target, const Vector3& up) {
-	Vector3 zaxis = Normalize(Subtract(target, eye));    // 前方向ベクトル
-	Vector3 xaxis = Normalize(Cross(up, zaxis)); // 右方向ベクトル
-	Vector3 yaxis = Cross(zaxis, xaxis);        // 上方向ベクトル
-
-	Matrix4x4 viewMatrix = {
-		xaxis.x, yaxis.x, zaxis.x, 0,
-		xaxis.y, yaxis.y, zaxis.y, 0,
-		xaxis.z, yaxis.z, zaxis.z, 0,
-		-Dot(xaxis, eye), -Dot(yaxis, eye), -Dot(zaxis, eye), 1
-	};
-
-	return viewMatrix;
-}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -142,67 +35,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	Vector3 point{ -1.5f,0.6f,0.6f };
+	Vector3 a{ 0.2f,1.0f,0.0f };
+	Vector3 b{ 2.4f,3.1f,1.2f };
 
-	Sphere sphere[3]{};
+	Vector3 c = Add(a , b);
+	Vector3 d = Subtract(a, b);
+	Vector3 e = Multiply(2.4f, a);
 
-	sphere[0].radius = 0.1f;
-	sphere[0].center = { 0.2f,0.8f,0.0f };
+	Vector3 rotate{ 0.4f,1.43f,-0.8f };
 
-	sphere[1].radius = 0.1f;
-	sphere[1].center = { 0.7f,0.5f,0.0f };
-
-	sphere[2].radius = 0.1f;
-	sphere[2].center = { 0.5f,0.2f,0.0f };
-
-	Segment segment{
-		.origin{-0.7f,0.3f,0.0f},
-		.diff{2.0f,-0.5f,0.0f}
-	};
-
-	Vector3 translates[3] = {
-		{0.2f,1.0f,0.0f},
-		{0.4f,0.0f,0.0f},
-		{0.3f,0.0f,0.0f},
-	};
-
-	Vector3 rotates[3] = {
-		{0.0f,0.0f,-6.8f},
-		{0.0f,0.0f,-1.4f},
-		{0.0f,0.0f,0.0f},
-	};
-
-	Vector3 scales[3] = {
-		{1.0f,1.0f,1.0f},
-		{1.0f,1.0f,1.0f},
-		{1.0f,1.0f,1.0f}
-	};
-
-	// カメラ行列
-	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
-	Vector3 cameraRotate{ 0.26f, 0.0f, 0.0f };
-	Sphere cameraTarget;
-	cameraTarget.center = { 0.0f, 0.0f, 0.0f }; // カメラのターゲットポイント
-	cameraTarget.radius = 0.01f;
-	int lastMouseX = 0;
-	int lastMouseY = 0;
-	int mouseX = 0;
-	int mouseY = 0;
-	bool IsDebugCameraActive = false;
-
-
-
-
-
-	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
-	Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
-
-	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
-	Matrix4x4 viewCameraMatrix = Inverse(cameraMatrix);
-
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-	Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
-	Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
+	Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
+	Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
+	Matrix4x4 rotateMatrix = Multiply(Multiply(rotateXMatrix, rotateYMatrix), rotateZMatrix);
 
 
 	// キー入力結果を受け取る箱
@@ -221,108 +66,28 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓更新処理ここから
 		///
-		ImGui::Begin("Window");
+		
 
-		ImGui::Text("parent");
-		ImGui::DragFloat3("Translate", &translates[0].x, 0.01f);
-		ImGui::DragFloat3("Rotate", &rotates[0].x, 0.01f);
-		ImGui::DragFloat3("Scale", &scales[0].x, 0.01f);
-
-		if (ImGui::TreeNode("Child 1")) {
-			ImGui::DragFloat3("Translate", &translates[1].x, 0.01f);
-			ImGui::DragFloat3("Rotate", &rotates[1].x, 0.01f);
-			ImGui::DragFloat3("Scale", &scales[1].x, 0.01f);
-
-			if (ImGui::TreeNode("Grandchild 1")) {
-				ImGui::DragFloat3("Translate", &translates[2].x, 0.01f);
-				ImGui::DragFloat3("Rotate", &rotates[2].x, 0.01f);
-				ImGui::DragFloat3("Scale", &scales[2].x, 0.01f);
-				ImGui::TreePop();
-			}
-
-			ImGui::TreePop();
-		}
-
-		ImGui::DragFloat3("Camera Translate", &cameraTranslate.x, 0.01f);
-		ImGui::DragFloat3("Camera Rotate", &cameraRotate.x, 0.01f);
-		ImGui::End();
-
-		Matrix4x4 parentWorldMatrix = MakeAffineMatrix(scales[0], rotates[0], translates[0]);
-		Matrix4x4 childWorldMatrix = Multiply(MakeAffineMatrix(scales[1], rotates[1], translates[1]), parentWorldMatrix);
-		Matrix4x4 granChildWorldMatrix = Multiply(MakeAffineMatrix(scales[2], rotates[2], translates[2]), childWorldMatrix);
-
-		sphere[0].center.x = parentWorldMatrix.m[3][0];
-		sphere[0].center.y = parentWorldMatrix.m[3][1];
-		sphere[0].center.z = parentWorldMatrix.m[3][2];
-
-		sphere[1].center.x = childWorldMatrix.m[3][0];
-		sphere[1].center.y = childWorldMatrix.m[3][1];
-		sphere[1].center.z = childWorldMatrix.m[3][2];
-
-		sphere[2].center.x = granChildWorldMatrix.m[3][0];
-		sphere[2].center.y = granChildWorldMatrix.m[3][1];
-		sphere[2].center.z = granChildWorldMatrix.m[3][2];
-
-
-
-		Vector3 center1 = Transform(sphere[0].center, viewProjectionMatrix);
-		Vector3 center2 = Transform(sphere[1].center, viewProjectionMatrix);
-		Vector3 center3 = Transform(sphere[2].center, viewProjectionMatrix);
-
-		Vector3 projectedCenter1 = Transform(center1, viewportMatrix);
-		Vector3 projectedCenter2 = Transform(center2, viewportMatrix);
-		Vector3 projectedCenter3 = Transform(center3, viewportMatrix);
-
-
-
-		/// ===デバックカメラ起動=== ///
-		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
-			IsDebugCameraActive = !IsDebugCameraActive;
-		}
-
-		/// ===デバックカメラ起動=== ///
-		// デバッグカメラが有効になっている場合、マウスの動きによってカメラを回転させる
-		if (IsDebugCameraActive) {
-			Novice::GetMousePosition(&mouseX, &mouseY);
-
-			if (Novice::IsPressMouse(0)) {
-				// マウスの移動量を計算
-				int deltaX = mouseX - lastMouseX;
-				int deltaY = mouseY - lastMouseY;
-
-				// カメラの回転を更新
-				float rotationSpeed = 0.005f;
-				cameraRotate.y += deltaX * rotationSpeed;
-				cameraRotate.x += deltaY * rotationSpeed;
-
-				// カメラの位置をターゲットポイントの周りに回転
-				float distance = Length(Subtract(cameraTranslate, cameraTarget.center));
-				Matrix4x4 rotationMatrix = MakeRotateMatrix(cameraRotate);
-				Vector3 offset = { 0.0f, 0.0f, -distance };
-				cameraTranslate = Add(cameraTarget.center, Transform(offset, rotationMatrix));
-			}
-
-			// マウスの位置を更新
-			lastMouseX = mouseX;
-			lastMouseY = mouseY;
-		}
-
-		///
+		/// 
 		/// ↑更新処理ここまで
 		///
 
 		///
 		/// ↓描画処理ここから
 		///
-
-		DrawGrid(viewProjectionMatrix, viewportMatrix);// グリッドの描画
-
-		DrawSphere(sphere[0], viewProjectionMatrix, viewportMatrix, RED);
-		DrawSphere(sphere[1], viewProjectionMatrix, viewportMatrix, GREEN);
-		DrawSphere(sphere[2], viewProjectionMatrix, viewportMatrix, BLUE);
-
-		Novice::DrawLine(int(projectedCenter1.x), int(projectedCenter1.y), int(projectedCenter2.x), int(projectedCenter2.y), WHITE);
-		Novice::DrawLine(int(projectedCenter2.x), int(projectedCenter2.y), int(projectedCenter3.x), int(projectedCenter3.y), WHITE);
+		ImGui::Begin("Window");
+		ImGui::Text("c:%f,%f,%f", c.x, c.y, c.z);
+		ImGui::Text("d:%f,%f,%f", d.x, d.y, d.z);
+		ImGui::Text("c:%f,%f,%f", e.x, e.y, e.z);
+		ImGui::Text(
+			"matrix:\n%f,%f,%f\n%f,%f,%f\n%f,%f,%f\n%f,%f,%f\n",
+			rotateMatrix.m[0][0], rotateMatrix.m[0][1], rotateMatrix.m[0][2],
+			rotateMatrix.m[0][3], rotateMatrix.m[1][0], rotateMatrix.m[1][1],
+			rotateMatrix.m[1][2], rotateMatrix.m[1][3], rotateMatrix.m[2][0],
+			rotateMatrix.m[2][1], rotateMatrix.m[2][2], rotateMatrix.m[2][3],
+			rotateMatrix.m[3][0], rotateMatrix.m[3][1], rotateMatrix.m[3][2],
+			rotateMatrix.m[3][3]);
+		ImGui::End();
 
 		///
 		/// ↑描画処理ここまで

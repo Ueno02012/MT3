@@ -3,10 +3,10 @@
 
 struct Spring
 {
-	// アンカー。固定された端の位置
+	// 繧｢繝ｳ繧ｫ繝ｼ縲ょ崋螳壹＆繧後◆遶ｯ縺ｮ菴咲ｽｮ
 	Vector3 anchor;
-	float naturalLength;//!<自然長
-	float stiffness;//!<剛性。ばね定数k
+	float naturalLength;//!<閾ｪ辟ｶ髟ｷ
+	float stiffness;//!<蜑帶ｧ縲ゅ�ｰ縺ｭ螳壽焚k
 
 };
 

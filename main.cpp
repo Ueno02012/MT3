@@ -135,6 +135,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	sphere.radius = 0.5f;
 	float deltaTime = 1.0f / 60.0f;
 
+	// カメラ行列
+	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
+	Vector3 cameraRotate{ 0.26f, 0.0f, 0.0f };
+	Sphere cameraTarget;
+	cameraTarget.center = { 0.0f, 0.0f, 0.0f }; // カメラのターゲットポイント
+	cameraTarget.radius = 0.01f;
+	int lastMouseX = 0;
+	int lastMouseY = 0;
+	int mouseX = 0;
+	int mouseY = 0;
+	bool IsDebugCameraActive = false;
 
 
 	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
@@ -185,7 +196,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		DrawSphere(sphere,viewProje)
+		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

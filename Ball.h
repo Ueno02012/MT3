@@ -2,10 +2,10 @@
 #include "Vector3.h"
 
 struct Ball {
-	Vector3 position;//!<ƒ{[ƒ‹‚ÌˆÊ’u
-	Vector3 velocity;//!<ƒ{[ƒ‹‚Ì‘¬“x
-	Vector3 aceleration;//!<ƒ{[ƒ‹‚Ì‰Á‘¬“x
-	float mass;//!<ƒ{[ƒ‹‚ÌŽ¿—Ê
-	float radius;//!<ƒ{[ƒ‹‚Ì”¼Œa
-	unsigned int color;//!<ƒ{[ƒ‹‚ÌF
+	Vector3 position;//!<ãƒœãƒ¼ãƒ«ã®ä½ç½®
+	Vector3 velocity;//!<ãƒœãƒ¼ãƒ«ã®é€Ÿåº¦
+	Vector3 aceleration;//!<ãƒœãƒ¼ãƒ«ã®åŠ é€Ÿåº¦
+	float mass;//!<ãƒœãƒ¼ãƒ«ã®è³ªé‡
+	float radius;//!<ãƒœãƒ¼ãƒ«ã®åŠå¾„
+	unsigned int color;//!<ãƒœãƒ¼ãƒ«ã®è‰²
 };

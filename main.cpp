@@ -4,7 +4,8 @@
 #include "Matrix.h"
 #include "Matrix4x4.h"
 #include "Vector3.h"
-#include "Sphere.h"
+#include "Spring.h"
+#include "Ball.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <algorithm>
@@ -16,15 +17,6 @@ static const int Kcolumnwidth = 60;
 static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
 
-struct Segment {
-	Vector3 origin;//!< 始点
-	Vector3 diff;//!< 終点
-};
-
-struct AABB {
-	Vector3 min;//!<始点
-	Vector3 max;//!<終点
-};
 
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
@@ -35,20 +27,18 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
-	Vector3 a{ 0.2f,1.0f,0.0f };
-	Vector3 b{ 2.4f,3.1f,1.2f };
+	Spring spring{};
+	spring.anchor = { 0.0f,0.0f,0.0f };
+	spring.naturalLength = 1.0f;
+	spring.stiffness = 100.0f;
 
-	Vector3 c = Add(a , b);
-	Vector3 d = Subtract(a, b);
-	Vector3 e = Multiply(2.4f, a);
+	Ball ball{};
+	ball.position = { 1.2f,0.0f,0.0f };
+	ball.mass = 2.0f;
+	ball.radius = 0.05f;
+	ball.color = BLUE;
 
-	Vector3 rotate{ 0.4f,1.43f,-0.8f };
-
-	Matrix4x4 rotateXMatrix = MakeRotateXMatrix(rotate.x);
-	Matrix4x4 rotateYMatrix = MakeRotateYMatrix(rotate.y);
-	Matrix4x4 rotateZMatrix = MakeRotateZMatrix(rotate.z);
-	Matrix4x4 rotateMatrix = Multiply(Multiply(rotateXMatrix, rotateYMatrix), rotateZMatrix);
-
+	float deltaTime = 1.0f / 60.0f;
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -67,6 +57,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 		
+		Vector3 diff = Subtract(ball.position , spring.anchor);
+		float length = Length(diff);
+		if (length != 0.0f) {
+			Vector3 direction = Normalize(diff);
+			Vector3 restPosition = Add(Multiply(direction, spring.naturalLength), spring.anchor);
+			Vector3 displacement=Multiply(Subtract(ball.position,restPosition),length);
+			Vector3 restoringForce = Multiply(displacement, -spring.stiffness);
+			Vector3 force = restoringForce;
+			ball.aceleration = Division(force, ball.mass);
+		}
+
 
 		/// 
 		/// ↑更新処理ここまで
@@ -75,19 +76,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		ImGui::Begin("Window");
-		ImGui::Text("c:%f,%f,%f", c.x, c.y, c.z);
-		ImGui::Text("d:%f,%f,%f", d.x, d.y, d.z);
-		ImGui::Text("c:%f,%f,%f", e.x, e.y, e.z);
-		ImGui::Text(
-			"matrix:\n%f,%f,%f\n%f,%f,%f\n%f,%f,%f\n%f,%f,%f\n",
-			rotateMatrix.m[0][0], rotateMatrix.m[0][1], rotateMatrix.m[0][2],
-			rotateMatrix.m[0][3], rotateMatrix.m[1][0], rotateMatrix.m[1][1],
-			rotateMatrix.m[1][2], rotateMatrix.m[1][3], rotateMatrix.m[2][0],
-			rotateMatrix.m[2][1], rotateMatrix.m[2][2], rotateMatrix.m[2][3],
-			rotateMatrix.m[3][0], rotateMatrix.m[3][1], rotateMatrix.m[3][2],
-			rotateMatrix.m[3][3]);
-		ImGui::End();
 
 		///
 		/// ↑描画処理ここまで

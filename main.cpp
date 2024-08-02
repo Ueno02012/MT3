@@ -131,6 +131,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.radius = 0.05f;
 	ball.color = BLUE;
 
+	Sphere sphere{};
+	sphere.radius = 0.5f;
 	float deltaTime = 1.0f / 60.0f;
 
 	// キー入力結果を受け取る箱
@@ -170,7 +172,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
-		DrawSphere()
+		DrawSphere(sphere,viewProje)
 
 		///
 		/// ↑描画処理ここまで

@@ -3,7 +3,7 @@
 
 struct Ball {
 	Vector3 position;//!<ボールの位置
-	Vector3 Velocity;//!<ボールの速度
+	Vector3 velocity;//!<ボールの速度
 	Vector3 aceleration;//!<ボールの加速度
 	float mass;//!<ボールの質量
 	float radius;//!<ボールの半径

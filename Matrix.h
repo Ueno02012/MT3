@@ -3,7 +3,6 @@
 #include "Vector3.h"
 #include "Matrix4x4.h"
 
-
 //加算
 Vector3 Add(const Vector3& v1, const Vector3& v2) {
 	Vector3 result;
@@ -20,6 +19,12 @@ Vector3 Subtract(const Vector3& v1, const Vector3& v2) {
 	return result;
 
 };
+Vector3 AddEx(const Vector3& v1, const Vector3& v2) {
+	Vector3 result;
+	result.x += v1.x + v2.x;
+	result.y += v1.y + v2.y;
+	result.z += v1.z + v2.z;
+}
 
 Vector3 Multiply(const Vector3& v1,float v2) {
 	Vector3 result;

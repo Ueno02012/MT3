@@ -148,15 +148,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool IsDebugCameraActive = false;
 
 
-	Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
-	Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
-
-	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
-	Matrix4x4 viewCameraMatrix = Inverse(cameraMatrix);
-
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
-	Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
-	Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
 
 	// キー入力結果を受け取る箱
@@ -189,6 +180,78 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		AddEx(ball.velocity, Multiply(ball.aceleration, deltaTime));
 		AddEx(ball.position, Multiply(ball.velocity, deltaTime));
 			
+
+
+
+
+
+		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
+		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
+
+		Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, cameraRotate, cameraTranslate);
+		Matrix4x4 viewCameraMatrix = Inverse(cameraMatrix);
+
+		Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(kWindowWidth) / float(kWindowHeight), 0.1f, 100.0f);
+		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
+		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
+
+
+
+
+		/// ===デバックカメラ起動=== ///
+		if (keys[DIK_SPACE] && !preKeys[DIK_SPACE]) {
+			if (IsDebugCameraActive) {
+				IsDebugCameraActive = false;
+			}
+			else {
+				IsDebugCameraActive = true;
+			}
+		}
+
+		/// ===デバックカメラ起動=== ///
+		// デバッグカメラが有効になっている場合、マウスの動きによってカメラを回転させる
+		if (IsDebugCameraActive) {
+			Novice::GetMousePosition(&mouseX, &mouseY);
+
+			if (Novice::IsPressMouse(0)) {
+				// マウスの移動量を計算
+				int deltaX = mouseX - lastMouseX;
+				int deltaY = mouseY - lastMouseY;
+
+				// カメラの回転を更新
+				float rotationSpeed = 0.005f;
+				cameraRotate.y += deltaX * rotationSpeed;
+				cameraRotate.x += deltaY * rotationSpeed;
+
+				// カメラの位置をターゲットポイントの周りに回転
+				float distance = Length(Subtract(cameraTranslate, cameraTarget.center));
+				Matrix4x4 rotationMatrix = MakeRotateMatrix(cameraRotate);
+				Vector3 offset = { 0.0f, 0.0f, -distance };
+				cameraTranslate = Add(cameraTarget.center, Transform(offset, rotationMatrix));
+			}
+
+			// マウスの位置を更新
+			lastMouseX = mouseX;
+			lastMouseY = mouseY;
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		/// 
 		/// ↑更新処理ここまで
 		///

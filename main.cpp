@@ -177,8 +177,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 			Vector3 force = restoringForce;
 			ball.aceleration = Division(force, ball.mass);
 		}
-		AddEx(ball.velocity, Multiply(ball.aceleration, deltaTime));
-		AddEx(ball.position, Multiply(ball.velocity, deltaTime));
 			
 
 

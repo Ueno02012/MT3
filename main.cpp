@@ -110,7 +110,22 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 		}
 	}
 }
+void DrawLien(const Vector3& start, const Vector3& end, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color) {
+	// ボールの位置を変換する
+	Vector3 transformedPositionstart = Transform(start, viewProjectionMatrix);
+	Vector3 transformedPositionend = Transform(end, viewProjectionMatrix);
+	// 2Dプロジェクション
+	Vector2 projectedPositionstart = ProjectTo2D(transformedPositionstart, viewportMatrix);
+	Vector2 projectedPositionend = ProjectTo2D(transformedPositionend, viewportMatrix);
 
+	// ボールを描画する
+	Novice::DrawLine(
+		static_cast<int>(projectedPositionstart.x),
+		static_cast<int>(projectedPositionstart.y),
+		static_cast<int>(projectedPositionend.x),
+		static_cast<int>(projectedPositionend.y),
+		color);
+}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -133,7 +148,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	Sphere sphere{};
 	sphere.radius = 0.5f;
+
 	float deltaTime = 1.0f / 60.0f;
+
+	bool start = false;
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -167,18 +185,43 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 		
+		sphere.center = { ball.position };
+		sphere.radius = ball.radius;
+
 		Vector3 diff = Subtract(ball.position , spring.anchor);
-		float length = Length(diff);
-		if (length != 0.0f) {
-			Vector3 direction = Normalize(diff);
-			Vector3 restPosition = Add(Multiply(direction, spring.naturalLength), spring.anchor);
-			Vector3 displacement=Multiply(Subtract(ball.position,restPosition),length);
-			Vector3 restoringForce = Multiply(displacement, -spring.stiffness);
-			Vector3 force = restoringForce;
-			ball.aceleration = Division(force, ball.mass);
+		if (start) {
+			float length = Length(diff);
+			if (length != 0.0f) {
+				Vector3 direction = Normalize(diff);
+				Vector3 restPosition = Add(Multiply(direction, spring.naturalLength), spring.anchor);
+				Vector3 displacement = Multiply(Subtract(ball.position, restPosition), length);
+				Vector3 restoringForce = Multiply(displacement, -spring.stiffness);
+				Vector3 dampingForce = Multiply(ball.velocity, -spring.dampingCoefficient);
+				Vector3 force = Add(restoringForce,dampingForce);
+				ball.aceleration = Division(force, ball.mass);
+
+				ball.velocity.x += ball.aceleration.x * deltaTime;
+				ball.velocity.y += ball.aceleration.y * deltaTime;
+				ball.velocity.z += ball.aceleration.z * deltaTime;
+
+				ball.position.x += ball.velocity.x * deltaTime;
+				ball.position.y += ball.velocity.y * deltaTime;
+				ball.position.z += ball.velocity.z * deltaTime;
+			}
+
 		}
 			
+		if (!start) {
+			spring.anchor = { 0.0f,0.0f,0.0f };
+			spring.naturalLength = 1.0f;
+			spring.stiffness = 100.0f;
+			spring.dampingCoefficient = 2.0f;
 
+			ball.position = { 1.2f,0.0f,0.0f };
+			ball.mass = 2.0f;
+			ball.radius = 0.05f;
+			ball.color = BLUE;
+		}
 
 
 
@@ -234,21 +277,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		ImGui::Begin("Window");
+		ImGui::Checkbox("Start", &start);
+		ImGui::End();
 
 		/// 
 		/// ↑更新処理ここまで
@@ -257,7 +288,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		/// ↓描画処理ここから
 		///
+		
+		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawLien(Vector3(0.0f, 0.0f, 0.0f), ball.position, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

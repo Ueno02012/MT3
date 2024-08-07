@@ -1,5 +1,6 @@
 #pragma once
 #include<assert.h>
+#include<Vector2.h>
 #include "Vector3.h"
 #include "Matrix4x4.h"
 
@@ -248,4 +249,10 @@ Matrix4x4 MakeRotateMatrix(const Vector3& rotate) {
 
 	// 回転行列の掛け合わせ順序はY, X, Zとする
 	return Multiply(ry, Multiply(rx, rz));
+}
+// 3次元ベクトルを2次元ベクトルに変換する関数
+Vector2 ProjectTo2D(const Vector3& v, const Matrix4x4& viewportMatrix) {
+	float x = v.x * viewportMatrix.m[0][0] + v.y * viewportMatrix.m[1][0] + v.z * viewportMatrix.m[2][0] + viewportMatrix.m[3][0];
+	float y = v.x * viewportMatrix.m[0][1] + v.y * viewportMatrix.m[1][1] + v.z * viewportMatrix.m[2][1] + viewportMatrix.m[3][1];
+	return { x, y };
 }

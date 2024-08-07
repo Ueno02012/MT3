@@ -7,6 +7,6 @@ struct Spring
 	Vector3 anchor;
 	float naturalLength;//!<自然長
 	float stiffness;//!<剛性。ばね定数k
-
+	float dampingCoefficient; // 減衰係数
 };
 

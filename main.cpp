@@ -152,6 +152,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	float deltaTime = 1.0f / 60.0f;
 
 	bool start = false;
+	bool frge = false;
+
+	float radius = 0.8f;
+
+	float angularVelocity = 3.14f;
+	float angle = 0.8f;
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -190,38 +196,30 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 		Vector3 diff = Subtract(ball.position , spring.anchor);
 		if (start) {
-			float length = Length(diff);
-			if (length != 0.0f) {
-				Vector3 direction = Normalize(diff);
-				Vector3 restPosition = Add(Multiply(direction, spring.naturalLength), spring.anchor);
-				Vector3 displacement = Multiply(Subtract(ball.position, restPosition), length);
-				Vector3 restoringForce = Multiply(displacement, -spring.stiffness);
-				Vector3 dampingForce = Multiply(ball.velocity, -spring.dampingCoefficient);
-				Vector3 force = Add(restoringForce,dampingForce);
-				ball.aceleration = Division(force, ball.mass);
+			frge = true;
+			//float length = Length(diff);
+			if (frge) {
+				angle += angularVelocity * deltaTime;
 
-				ball.velocity.x += ball.aceleration.x * deltaTime;
-				ball.velocity.y += ball.aceleration.y * deltaTime;
-				ball.velocity.z += ball.aceleration.z * deltaTime;
+				//円運動の位置を計算
+				ball.position.x = std::cos(angle) * radius;
+				ball.position.y = std::sin(angle) * radius;
+				ball.position.z = 0.0f;
 
-				ball.position.x += ball.velocity.x * deltaTime;
-				ball.position.y += ball.velocity.y * deltaTime;
-				ball.position.z += ball.velocity.z * deltaTime;
+				//速度の計算
+				ball.velocity.x = -radius * std::sin(angle) * angularVelocity;
+				ball.velocity.y = radius * std::cos(angle) * angularVelocity;
+				ball.velocity.z = 0.0f;
+
+				//加速度の計算
+				ball.aceleration.x = angularVelocity * angularVelocity * ball.position.x;
+				ball.aceleration.y = angularVelocity * angularVelocity * ball.position.y;
+				ball.velocity.z = 0.0f;
+
 			}
 
 		}
 			
-		if (!start) {
-			spring.anchor = { 0.0f,0.0f,0.0f };
-			spring.naturalLength = 1.0f;
-			spring.stiffness = 100.0f;
-			spring.dampingCoefficient = 2.0f;
-
-			ball.position = { 1.2f,0.0f,0.0f };
-			ball.mass = 2.0f;
-			ball.radius = 0.05f;
-			ball.color = BLUE;
-		}
 
 
 
@@ -291,7 +289,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
-		DrawLien(Vector3(0.0f, 0.0f, 0.0f), ball.position, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

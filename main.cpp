@@ -134,18 +134,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	// ライブラリの初期化
 	Novice::Initialize(kWindowTitle, 1280, 720);
 
+	Plane plane{};
+	plane.normal = Normalize({ -0.2f,0.9f,-0.3f });
+	plane.distance = 0.0f;
 
 
-	Spring spring{};
-	spring.anchor = { 0.0f,0.0f,0.0f };
-	spring.naturalLength = 1.0f;
-	spring.stiffness = 100.0f;
-
-	//Ball ball{};
-	//ball.position = { 1.2f,0.0f,0.0f };
-	//ball.mass = 2.0f;
-	//ball.radius = 0.05f;
-	//ball.color = BLUE;
+	Ball ball{};
+	ball.position = { 1.2f,0.0f,0.0f };
+	ball.mass = 2.0f;
+	ball.radius = 0.05f;
+	ball.color = BLUE;
+	ball.aceleration = { 0.0f,-9.8f,0.0f };
 
 	Sphere sphere{};
 	sphere.radius = 0.1f;
@@ -154,14 +153,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	bool start = false;
 
-
-	Pendulum pendulum;
-	pendulum.anchor = { 0.0f,1.0f,0.0f };
-	pendulum.length = 0.8f;
-	pendulum.halfApexAngle = 0.7f;
-	pendulum.angle = 0.0f;	
-	pendulum.angularVelocity = 0.0f;
-
+	float e = 0.02f;
 
 	Vector3 ball{};
 
@@ -197,18 +189,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 		
-		sphere.center = { ball };
-		pendulum.angularVelocity = std::sqrt(9.8f / (pendulum.length * std::cos(pendulum.halfApexAngle)));
-
-		if (start) {
-			pendulum.angle += pendulum.angularVelocity * deltaTime;
-			float radius = std::sin(pendulum.halfApexAngle) * pendulum.length;
-			float height = std::cos(pendulum.halfApexAngle) * pendulum.length;
-
-			ball.x = pendulum.anchor.x + std::cos(pendulum.angle) * radius;
-			ball.y = pendulum.anchor.y - height;
-			ball.z = pendulum.anchor.z - std::sin(pendulum.angle) * radius;
-		}
 			
 
 
@@ -279,7 +259,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
-		DrawLine(pendulum.anchor, ball, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

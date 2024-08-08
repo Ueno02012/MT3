@@ -132,6 +132,14 @@ void DrawLine(const Vector3& start, const Vector3& end, const Matrix4x4& viewPro
 		static_cast<int>(projectedPositionend.y),
 		color);
 }
+
+Vector3 Perpendicular(const Vector3& vector) {
+	if (vector.x != 0.0f || vector.y != 0.0f) {
+		return{ -vector.y,vector.x,0.0f };
+	}
+	return { 0.0f,-vector.z,vector.y };
+}
+
 void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
 	Vector3 center = Multiply(plane.normal,plane.distance);// 1
 	Vector3 perpendiculars[4];

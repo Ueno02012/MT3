@@ -141,11 +141,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	spring.naturalLength = 1.0f;
 	spring.stiffness = 100.0f;
 
-	Ball ball{};
-	ball.position = { 1.2f,0.0f,0.0f };
-	ball.mass = 2.0f;
-	ball.radius = 0.05f;
-	ball.color = BLUE;
+	//Ball ball{};
+	//ball.position = { 1.2f,0.0f,0.0f };
+	//ball.mass = 2.0f;
+	//ball.radius = 0.05f;
+	//ball.color = BLUE;
 
 	Sphere sphere{};
 	sphere.radius = 0.1f;
@@ -163,7 +163,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	pendulum.angularVelocity = 0.0f;
 
 
-	Vector3 point{};
+	Vector3 ball{};
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -197,16 +197,17 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 		
-		sphere.center = { point };
-		pendulum.angle = (-9.8f / pendulum.length) * std::sin(pendulum.halfApexAngle);
+		sphere.center = { ball };
+		pendulum.angularVelocity = std::sqrt(9.8f / (pendulum.length * std::cos(pendulum.halfApexAngle)));
 
 		if (start) {
-			pendulum.angularVelocity += pendulum.angle * deltaTime;
-			pendulum.halfApexAngle += pendulum.angularVelocity * deltaTime;
+			pendulum.angle += pendulum.angularVelocity * deltaTime;
+			float radius = std::sin(pendulum.halfApexAngle) * pendulum.length;
+			float height = std::cos(pendulum.halfApexAngle) * pendulum.length;
 
-			point.x = pendulum.anchor.x + std::sin(pendulum.halfApexAngle) * pendulum.length;
-			point.y = pendulum.anchor.y - std::cos(pendulum.halfApexAngle) * pendulum.length;
-			point.z = pendulum.anchor.z;
+			ball.x = pendulum.anchor.x + std::cos(pendulum.angle) * radius;
+			ball.y = pendulum.anchor.y - height;
+			ball.z = pendulum.anchor.z - std::sin(pendulum.angle) * radius;
 		}
 			
 
@@ -278,7 +279,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
-		DrawLine(pendulum.anchor, point, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawLine(pendulum.anchor, ball, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

@@ -7,6 +7,7 @@
 #include "Spring.h"
 #include "Ball.h"
 #include "Sphere.h"
+#include"pendulum.h"
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <algorithm>
@@ -110,7 +111,7 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 		}
 	}
 }
-void DrawLien(const Vector3& start, const Vector3& end, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color) {
+void DrawLine(const Vector3& start, const Vector3& end, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color) {
 	// ボールの位置を変換する
 	Vector3 transformedPositionstart = Transform(start, viewProjectionMatrix);
 	Vector3 transformedPositionend = Transform(end, viewProjectionMatrix);
@@ -147,17 +148,22 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	ball.color = BLUE;
 
 	Sphere sphere{};
-	sphere.radius = 0.5f;
+	sphere.radius = 0.1f;
 
 	float deltaTime = 1.0f / 60.0f;
 
 	bool start = false;
-	bool frge = false;
 
-	float radius = 0.8f;
 
-	float angularVelocity = 3.14f;
-	float angle = 0.8f;
+	Pendulum pendulum;
+	pendulum.anchor = { 0.0f,1.0f,0.0f };
+	pendulum.length = 0.8f;
+	pendulum.halfApexAngle = 0.7f;
+	pendulum.angle = 0.0f;	
+	pendulum.angularVelocity = 0.0f;
+
+
+	Vector3 point{};
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -172,7 +178,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	bool IsDebugCameraActive = false;
 
 
-
+	
 
 	// キー入力結果を受け取る箱
 	char keys[256] = { 0 };
@@ -191,33 +197,16 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		/// ↓更新処理ここから
 		///
 		
-		sphere.center = { ball.position };
-		sphere.radius = ball.radius;
+		sphere.center = { point };
+		pendulum.angle = (-9.8f / pendulum.length) * std::sin(pendulum.halfApexAngle);
 
-		Vector3 diff = Subtract(ball.position , spring.anchor);
 		if (start) {
-			frge = true;
-			//float length = Length(diff);
-			if (frge) {
-				angle += angularVelocity * deltaTime;
+			pendulum.angularVelocity += pendulum.angle * deltaTime;
+			pendulum.halfApexAngle += pendulum.angularVelocity * deltaTime;
 
-				//円運動の位置を計算
-				ball.position.x = std::cos(angle) * radius;
-				ball.position.y = std::sin(angle) * radius;
-				ball.position.z = 0.0f;
-
-				//速度の計算
-				ball.velocity.x = -radius * std::sin(angle) * angularVelocity;
-				ball.velocity.y = radius * std::cos(angle) * angularVelocity;
-				ball.velocity.z = 0.0f;
-
-				//加速度の計算
-				ball.aceleration.x = angularVelocity * angularVelocity * ball.position.x;
-				ball.aceleration.y = angularVelocity * angularVelocity * ball.position.y;
-				ball.velocity.z = 0.0f;
-
-			}
-
+			point.x = pendulum.anchor.x + std::sin(pendulum.halfApexAngle) * pendulum.length;
+			point.y = pendulum.anchor.y - std::cos(pendulum.halfApexAngle) * pendulum.length;
+			point.z = pendulum.anchor.z;
 		}
 			
 
@@ -289,6 +278,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
 		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+		DrawLine(pendulum.anchor, point, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

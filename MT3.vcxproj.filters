@@ -113,5 +113,8 @@
     </ClInclude>
     <ClInclude Include="Matrix.h" />
     <ClInclude Include="Sphere.h" />
+    <ClInclude Include="Ball.h" />
+    <ClInclude Include="Spring.h" />
+    <ClInclude Include="pendulum.h" />
   </ItemGroup>
 </Project>

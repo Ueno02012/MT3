@@ -19,6 +19,11 @@ static const int Kcolumnwidth = 60;
 static const int kWindowWidth = 1280;
 static const int kWindowHeight = 720;
 
+struct Plane {
+	Vector3 normal;
+	float distance;
+};
+
 
 const char kWindowTitle[] = "LE2B_03_ウエノ_ユウキ_タイトル";
 
@@ -128,7 +133,7 @@ void DrawLine(const Vector3& start, const Vector3& end, const Matrix4x4& viewPro
 		color);
 }
 void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, uint32_t color) {
-	Vector3 center = vMultiply(plane.distance, plane.normal);// 1
+	Vector3 center = Multiply(plane.normal,plane.distance);// 1
 	Vector3 perpendiculars[4];
 	perpendiculars[0] = Normalize(Perpendicular(plane.normal));// 2
 	perpendiculars[1] = { -perpendiculars[0].x,-perpendiculars[0].y,-perpendiculars[0].z };//3
@@ -137,7 +142,7 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 	// 6
 	Vector3 points[4];
 	for (int32_t index = 0; index < 4; ++index) {
-		Vector3 extend = vMultiply(2.0f, perpendiculars[index]);
+		Vector3 extend = Multiply(perpendiculars[index], 2.0f);
 		Vector3 point = Add(center, extend);
 		points[index] = Transform(Transform(point, viewProjectionMatrix), viewportMatrix);
 	}

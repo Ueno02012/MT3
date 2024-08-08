@@ -116,22 +116,6 @@ static void DrawSphere(const Sphere& sphere, const Matrix4x4& viewProjectionMatr
 		}
 	}
 }
-void DrawLine(const Vector3& start, const Vector3& end, const Matrix4x4& viewProjectionMatrix, const Matrix4x4& viewportMatrix, unsigned int color) {
-	// ボールの位置を変換する
-	Vector3 transformedPositionstart = Transform(start, viewProjectionMatrix);
-	Vector3 transformedPositionend = Transform(end, viewProjectionMatrix);
-	// 2Dプロジェクション
-	Vector2 projectedPositionstart = ProjectTo2D(transformedPositionstart, viewportMatrix);
-	Vector2 projectedPositionend = ProjectTo2D(transformedPositionend, viewportMatrix);
-
-	// ボールを描画する
-	Novice::DrawLine(
-		static_cast<int>(projectedPositionstart.x),
-		static_cast<int>(projectedPositionstart.y),
-		static_cast<int>(projectedPositionend.x),
-		static_cast<int>(projectedPositionend.y),
-		color);
-}
 
 Vector3 Perpendicular(const Vector3& vector) {
 	if (vector.x != 0.0f || vector.y != 0.0f) {
@@ -161,6 +145,28 @@ void DrawPlane(const Plane& plane, const Matrix4x4& viewProjectionMatrix, const 
 	Novice::DrawLine(int(points[1].x), int(points[1].y), int(points[3].x), int(points[3].y), color);
 	Novice::DrawLine(int(points[3].x), int(points[3].y), int(points[0].x), int(points[0].y), color);
 }
+Vector3 Reflect(const Vector3& input, const Vector3& normal) {
+
+	float dotProduct = Dot(input, normal);
+
+	// 反射ベクトルを計算
+	Vector3 reflection = {
+		input.x - normal.x * (2 * dotProduct),
+		input.y - normal.y * (2 * dotProduct),
+		input.z - normal.z * (2 * dotProduct)
+	};
+
+	return reflection;
+}
+
+// 球と平面の当たり判定
+bool  IsCollision(const Sphere& sphere, const Plane& plane) {
+	Vector3 normalizedNormal = Normalize(plane.normal);
+	// 球の中心と平面の距離を計算
+	float distance = Dot(normalizedNormal, sphere.center) - plane.distance;
+	// 距離の絶対値が球の半径以下であれば衝突
+	return std::abs(distance) <= sphere.radius;
+}
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
@@ -174,9 +180,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 
 	Ball ball{};
-	ball.position = { 1.2f,0.0f,0.0f };
+	ball.position = { 1.2f,1.2f,0.3f };
 	ball.mass = 2.0f;
-	ball.radius = 0.05f;
+	ball.radius = 0.1f;
 	ball.color = BLUE;
 	ball.aceleration = { 0.0f,-9.8f,0.0f };
 
@@ -189,7 +195,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	float e = 0.02f;
 
-	Vector3 ball{};
 
 	// カメラ行列
 	Vector3 cameraTranslate{ 0.0f, 1.9f, -10.49f };
@@ -224,10 +229,6 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		
 			
-
-
-
-
 		Matrix4x4 worldMatrix = MakeAffineMatrix({ 1.0f,1.0f,1.0f }, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,0.0f });
 		Matrix4x4 viewWorldMatrix = Inverse(worldMatrix);
 
@@ -238,6 +239,45 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		Matrix4x4 viewProjectionMatrix = Multiply(viewWorldMatrix, Multiply(viewCameraMatrix, projectionMatrix));
 		Matrix4x4 viewportMatrix = MakeViewportMatrix(0.0f, 0.0f, float(kWindowWidth), float(kWindowHeight), 0.0f, 1.0f);
 
+
+
+		if (start) {
+			ball.velocity.x += ball.aceleration.x * deltaTime;
+			ball.velocity.y += ball.aceleration.y * deltaTime;
+			ball.velocity.z += ball.aceleration.z * deltaTime;
+
+			ball.position.x += ball.velocity.x * deltaTime;
+			ball.position.y += ball.velocity.y * deltaTime;
+			ball.position.z += ball.velocity.z * deltaTime;
+
+			if (IsCollision(Sphere{ ball.position,ball.radius }, plane)) {
+				Vector3 normalizedNormal = Normalize(plane.normal);
+				float penetrationDepth = (ball.radius - Dot(normalizedNormal, ball.position) + plane.distance);
+
+				// 球を平面から押す
+				ball.position.x += normalizedNormal.x * penetrationDepth;
+				ball.position.y += normalizedNormal.y * penetrationDepth;
+				ball.position.z += normalizedNormal.z * penetrationDepth;
+
+				Vector3 reflected = Reflect(ball.velocity, plane.normal);
+				Vector3 projectToNormal = Project(reflected, plane.normal);
+				Vector3 movingDirection = {
+				reflected.x - projectToNormal.x,
+				reflected.y - projectToNormal.y,
+				reflected.z - projectToNormal.z,
+				};
+
+				ball.velocity.x = projectToNormal.x * e + movingDirection.x;
+				ball.velocity.y = projectToNormal.y * e + movingDirection.y;
+				ball.velocity.z = projectToNormal.z * e + movingDirection.z;
+			}
+
+
+		}
+
+
+
+	
 
 
 
@@ -292,7 +332,10 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 		///
 		
 		DrawGrid(viewProjectionMatrix, viewportMatrix);
-		DrawSphere(sphere, viewProjectionMatrix, viewportMatrix, WHITE);
+
+		DrawPlane(plane, viewProjectionMatrix, viewportMatrix, WHITE);
+
+		DrawSphere(Sphere{ball.position,ball.radius}, viewProjectionMatrix, viewportMatrix, WHITE);
 
 		///
 		/// ↑描画処理ここまで

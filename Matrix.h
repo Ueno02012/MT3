@@ -45,10 +45,12 @@ Vector3 Division(const Vector3& v1,float v2) {
 float Dot(const Vector3& v1, const Vector3& v2) {
 	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
-
 //長さ（ノルム）
 float Length(const Vector3& v) {
 	return sqrtf(powf(v.x, 2) + powf(v.y, 2) + powf(v.z, 2));
+};
+Vector3 Project(const Vector3& v1, const Vector3& v2) {
+	return (Dot(v1, v2) / powf(Length(v2), 2), v2);
 };
 
 //正規化
